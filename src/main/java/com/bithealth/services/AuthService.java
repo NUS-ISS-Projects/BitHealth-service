@@ -13,6 +13,8 @@ import com.bithealth.entities.User.Role;
 import com.bithealth.repositories.DoctorRepository;
 import com.bithealth.repositories.PatientRepository;
 import com.bithealth.repositories.UserRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
