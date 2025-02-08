@@ -1,4 +1,5 @@
 package com.bithealth.controllers;
+
 import com.bithealth.dto.UserRegistrationDTO;
 import com.bithealth.entities.User;
 import com.bithealth.services.AuthService;
@@ -18,4 +19,8 @@ public class AuthController {
     public ResponseEntity<User> register(@RequestBody UserRegistrationDTO dto) {
         return ResponseEntity.ok(authService.registerUser(dto));
     }
+
+    // Upload document
+
+    //
 }
