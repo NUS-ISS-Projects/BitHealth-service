@@ -16,7 +16,7 @@ public class SecurityConfig {
         http
                 .csrf().disable() // Disable CSRF (if using Postman)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/register").permitAll() // Allow public access
+                        .requestMatchers("/api/**").permitAll() // Allow public access
                         .anyRequest().authenticated() // Protect other endpoints
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

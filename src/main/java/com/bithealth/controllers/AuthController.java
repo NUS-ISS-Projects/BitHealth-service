@@ -20,7 +20,10 @@ public class AuthController {
         return ResponseEntity.ok(authService.registerUser(dto));
     }
 
-    // Upload document
-
+    @GetMapping("/{userId}")
+    public ResponseEntity<User> getProfile(@PathVariable Long userId) {
+        User user = authService.getUserProfile(userId);
+        return ResponseEntity.ok(user); // 200 OK
+    }
     //
 }
