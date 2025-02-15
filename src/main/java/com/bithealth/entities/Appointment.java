@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -28,7 +29,7 @@ public class Appointment {
     private Doctor doctor;
 
     private LocalDate appointmentDate;
-    private LocalDateTime appointmentTime;
+    private LocalTime appointmentTime;
     private String reasonForVisit;
 
     @Enumerated(EnumType.STRING)

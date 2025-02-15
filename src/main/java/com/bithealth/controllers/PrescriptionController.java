@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.bithealth.dto.PrescriptionCreateRequestDTO;
+import com.bithealth.dto.PrescriptionVerificationDTO;
 import com.bithealth.entities.Prescription;
 import com.bithealth.services.PrescriptionService;
 
@@ -14,8 +16,9 @@ public class PrescriptionController {
     private PrescriptionService prescriptionService;
 
     @PostMapping
-    public ResponseEntity<Prescription> createPrescription(@RequestBody Prescription prescription) {
-        return ResponseEntity.status(201).body(prescriptionService.createPrescription(prescription));
+    public ResponseEntity<Prescription> createPrescription(@RequestBody PrescriptionCreateRequestDTO dto) {
+        Prescription prescription = prescriptionService.createPrescription(dto);
+        return ResponseEntity.status(201).body(prescription);
     }
 
     @GetMapping("/appointment/{appointmentId}")
@@ -26,7 +29,8 @@ public class PrescriptionController {
     @PutMapping("/{prescriptionId}/verify")
     public ResponseEntity<Prescription> verifyPrescription(
             @PathVariable Long prescriptionId,
-            @RequestParam Boolean isVerified) {
-        return ResponseEntity.ok(prescriptionService.verifyPrescription(prescriptionId, isVerified));
+            @RequestBody PrescriptionVerificationDTO dto) {
+        Prescription updatedPrescription = prescriptionService.verifyPrescription(prescriptionId, dto);
+        return ResponseEntity.ok(updatedPrescription);
     }
 }
