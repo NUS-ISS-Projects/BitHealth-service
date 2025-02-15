@@ -1,7 +1,5 @@
 package com.bithealth.dto;
 
-import java.time.LocalDate;
-
 import lombok.Data;
 
 @Data
