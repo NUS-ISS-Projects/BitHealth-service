@@ -2,20 +2,15 @@ package com.bithealth.services;
 
 import com.bithealth.dto.AppointmentCreateRequestDTO;
 import com.bithealth.entities.Appointment;
-import com.bithealth.entities.Appointment.Status;
 import com.bithealth.entities.Doctor;
 import com.bithealth.entities.Patient;
 import com.bithealth.repositories.AppointmentRepository;
 import com.bithealth.repositories.DoctorRepository;
 import com.bithealth.repositories.PatientRepository;
-import com.bithealth.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AppointmentService {
