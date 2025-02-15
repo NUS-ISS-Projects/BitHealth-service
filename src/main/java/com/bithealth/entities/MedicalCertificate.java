@@ -33,4 +33,9 @@ public class MedicalCertificate {
 
     @LastModifiedDate // Automatically updates the timestamp on every update
     private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        issueDate = LocalDate.now(); // Automatically set today's date on creation
+    }
 }

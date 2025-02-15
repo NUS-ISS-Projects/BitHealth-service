@@ -3,15 +3,32 @@ package com.bithealth.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.bithealth.dto.MedicalCertificateCreateRequestDTO;
+import com.bithealth.dto.MedicalCertificateVerificationDTO;
+import com.bithealth.entities.Appointment;
 import com.bithealth.entities.MedicalCertificate;
+import com.bithealth.repositories.AppointmentRepository;
 import com.bithealth.repositories.MedicalCertificateRepository;
 
 @Service
 public class MedicalCertificateService {
     @Autowired
     private MedicalCertificateRepository medicalCertificateRepository;
+    @Autowired
+    private AppointmentRepository appointmentRepository;
 
-    public MedicalCertificate createMedicalCertificate(MedicalCertificate certificate) {
+    public MedicalCertificate createMedicalCertificate(MedicalCertificateCreateRequestDTO dto) {
+        // Fetch the associated Appointment
+        Appointment appointment = appointmentRepository.findById(dto.getAppointmentId())
+                .orElseThrow(
+                        () -> new IllegalArgumentException("Appointment not found with ID: " + dto.getAppointmentId()));
+
+        // Create the MedicalCertificate
+        MedicalCertificate certificate = new MedicalCertificate();
+        certificate.setAppointment(appointment);
+        certificate.setDetails(dto.getDetails());
+        certificate.setIsVerified(false); // Default value
+
         return medicalCertificateRepository.save(certificate);
     }
 
@@ -19,9 +36,16 @@ public class MedicalCertificateService {
         return medicalCertificateRepository.findByAppointment_AppointmentId(appointmentId);
     }
 
-    public MedicalCertificate verifyMedicalCertificate(Long certificateId, Boolean isVerified) {
-        MedicalCertificate certificate = medicalCertificateRepository.findById(certificateId).orElseThrow();
-        certificate.setIsVerified(isVerified);
+    public MedicalCertificate verifyMedicalCertificate(Long certificateId, MedicalCertificateVerificationDTO dto) {
+        MedicalCertificate certificate = medicalCertificateRepository.findById(certificateId)
+                .orElseThrow(
+                        () -> new IllegalArgumentException("Medical certificate not found with ID: " + certificateId));
+
+        if (dto.getIsVerified() == null) {
+            throw new IllegalArgumentException("isVerified parameter is required");
+        }
+
+        certificate.setIsVerified(dto.getIsVerified());
         return medicalCertificateRepository.save(certificate);
     }
 }
