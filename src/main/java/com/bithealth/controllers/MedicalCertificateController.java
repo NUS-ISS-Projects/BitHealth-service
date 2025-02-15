@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.bithealth.dto.MedicalCertificateCreateRequestDTO;
+import com.bithealth.dto.MedicalCertificateVerificationDTO;
 import com.bithealth.entities.MedicalCertificate;
 import com.bithealth.services.MedicalCertificateService;
 
@@ -14,8 +16,10 @@ public class MedicalCertificateController {
     private MedicalCertificateService medicalCertificateService;
 
     @PostMapping
-    public ResponseEntity<MedicalCertificate> createMedicalCertificate(@RequestBody MedicalCertificate certificate) {
-        return ResponseEntity.status(201).body(medicalCertificateService.createMedicalCertificate(certificate));
+    public ResponseEntity<MedicalCertificate> createMedicalCertificate(
+            @RequestBody MedicalCertificateCreateRequestDTO dto) {
+        MedicalCertificate certificate = medicalCertificateService.createMedicalCertificate(dto);
+        return ResponseEntity.status(201).body(certificate);
     }
 
     @GetMapping("/appointment/{appointmentId}")
@@ -26,7 +30,8 @@ public class MedicalCertificateController {
     @PutMapping("/{certificateId}/verify")
     public ResponseEntity<MedicalCertificate> verifyMedicalCertificate(
             @PathVariable Long certificateId,
-            @RequestParam Boolean isVerified) {
-        return ResponseEntity.ok(medicalCertificateService.verifyMedicalCertificate(certificateId, isVerified));
+            @RequestBody MedicalCertificateVerificationDTO dto) {
+        MedicalCertificate updatedCertificate = medicalCertificateService.verifyMedicalCertificate(certificateId, dto);
+        return ResponseEntity.ok(updatedCertificate);
     }
 }
