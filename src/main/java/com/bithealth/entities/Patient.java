@@ -27,12 +27,5 @@ public class Patient {
 
     private String dateOfBirth;
     private String gender;
-    private String medicalHistory;
-
-    @CreatedDate // Automatically sets the creation timestamp
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate // Automatically updates the timestamp on every update
-    private LocalDateTime updatedAt;
 
 }

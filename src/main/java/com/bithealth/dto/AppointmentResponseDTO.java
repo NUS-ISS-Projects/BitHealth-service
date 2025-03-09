@@ -11,6 +11,4 @@ public class AppointmentResponseDTO {
     private String appointmentTime;
     private String reasonForVisit;
     private String status;
-    private String createdAt;
-    private String updatedAt;
 }

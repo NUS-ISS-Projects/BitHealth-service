@@ -30,9 +30,6 @@ public class PatientService {
         if (request.getGender() != null) {
             patient.setGender(request.getGender());
         }
-        if (request.getMedicalHistory() != null) {
-            patient.setMedicalHistory(request.getMedicalHistory());
-        }
 
         return patientRepository.save(patient);
     }

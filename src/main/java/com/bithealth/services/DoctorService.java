@@ -31,9 +31,6 @@ public class DoctorService {
         if (request.getSpecialization() != null) {
             doctor.setSpecialization(request.getSpecialization());
         }
-        if (request.getBio() != null) {
-            doctor.setBio(request.getBio());
-        }
 
         return doctorRepository.save(doctor);
     }

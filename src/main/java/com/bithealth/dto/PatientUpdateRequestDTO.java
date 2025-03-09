@@ -6,5 +6,4 @@ import lombok.Data;
 public class PatientUpdateRequestDTO {
     private String dateOfBirth;
     private String gender;
-    private String medicalHistory;
 }

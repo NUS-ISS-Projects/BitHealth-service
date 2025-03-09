@@ -43,6 +43,7 @@ public class AppointmentService {
         appointment.setAppointmentDate(request.getAppointmentDate());
         appointment.setAppointmentTime(request.getAppointmentTime());
         appointment.setReasonForVisit(request.getReasonForVisit());
+        appointment.setComment(request.getComment());
         appointment.setStatus(Appointment.Status.PENDING); // Default status
 
         return appointmentRepository.save(appointment);
@@ -54,6 +55,14 @@ public class AppointmentService {
 
     public List<Appointment> getAppointmentsForPatient(Long patientId) {
         return appointmentRepository.findByPatient_PatientId(patientId);
+    }
+
+    public Appointment getAppointmentById(Long appointmentId) {
+        return appointmentRepository.findAppointmentByAppointmentId(appointmentId);
+    }
+    public void deleteAppointment(Long appointmentId) {
+        Appointment appointment = appointmentRepository.findAppointmentByAppointmentId(appointmentId);
+        appointmentRepository.delete(appointment);
     }
 
     // Update the status of an appointment
