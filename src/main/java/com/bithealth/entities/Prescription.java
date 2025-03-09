@@ -34,10 +34,4 @@ public class Prescription {
     private String notes;
 
     private Boolean isVerified;
-
-    @CreatedDate // Automatically sets the creation timestamp
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate // Automatically updates the timestamp on every update
-    private LocalDateTime updatedAt;
 }

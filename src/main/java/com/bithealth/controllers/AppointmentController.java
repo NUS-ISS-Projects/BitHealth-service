@@ -36,6 +36,19 @@ public class AppointmentController {
         return ResponseEntity.ok(appointmentService.getAppointmentsForPatient(patientId));
     }
 
+    // Get Appointment by ID
+    @GetMapping("/{appointmentId}")
+    public ResponseEntity<Appointment> getAppointmentById(@PathVariable Long appointmentId) {
+        Appointment appointment = appointmentService.getAppointmentById(appointmentId);
+        return ResponseEntity.ok(appointment);
+    }
+
+    @DeleteMapping("/{appointmentId}")
+    public ResponseEntity<Void> deleteAppointment(@PathVariable Long appointmentId) {
+        appointmentService.deleteAppointment(appointmentId);
+        return ResponseEntity.noContent().build();
+    }
+
     // Update Appointment Status
     @PutMapping("/{appointmentId}")
     public ResponseEntity<Appointment> updateAppointmentStatus(
