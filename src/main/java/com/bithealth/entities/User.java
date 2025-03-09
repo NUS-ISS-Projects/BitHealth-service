@@ -34,12 +34,6 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @CreatedDate // Automatically sets the creation timestamp
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate // Automatically updates the timestamp on every update
-    private LocalDateTime updatedAt;
-
     // One-to-One relationship with Doctor
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
     @JsonIgnore

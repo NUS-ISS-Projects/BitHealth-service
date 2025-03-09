@@ -28,12 +28,6 @@ public class MedicalCertificate {
 
     private Boolean isVerified;
 
-    @CreatedDate // Automatically sets the creation timestamp
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate // Automatically updates the timestamp on every update
-    private LocalDateTime updatedAt;
-
     @PrePersist
     protected void onCreate() {
         issueDate = LocalDate.now(); // Automatically set today's date on creation

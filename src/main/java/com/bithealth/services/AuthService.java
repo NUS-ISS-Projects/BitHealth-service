@@ -43,7 +43,6 @@ public class AuthService {
             Doctor doctor = new Doctor();
             doctor.setUser(savedUser);
             doctor.setSpecialization("General Practitioner"); // Default specialization
-            doctor.setBio("No bio provided yet."); // Default bio
 
             // Save the doctor entry
             doctorRepository.save(doctor);
@@ -55,7 +54,6 @@ public class AuthService {
             patient.setUser(savedUser);
             patient.setDateOfBirth("1990-01-01"); // Default date of birth
             patient.setGender("Unknown"); // Default gender
-            patient.setMedicalHistory("No history provided yet."); // Default medical history
 
             // Save the patient entry
             patientRepository.save(patient);

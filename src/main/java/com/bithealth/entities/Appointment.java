@@ -31,15 +31,10 @@ public class Appointment {
     private LocalDate appointmentDate;
     private LocalTime appointmentTime;
     private String reasonForVisit;
+    private String comment;
 
     @Enumerated(EnumType.STRING)
     private Status status;
-
-    @CreatedDate // Automatically sets the creation timestamp
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate // Automatically updates the timestamp on every update
-    private LocalDateTime updatedAt;
 
     public enum Status {
         PENDING, CONFIRMED, REJECTED, COMPLETED

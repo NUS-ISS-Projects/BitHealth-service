@@ -19,4 +19,7 @@ public class AppointmentCreateRequestDTO {
 
     @JsonProperty("reason_for_visit") // Matches JSON key "reason_for_visit"
     private String reasonForVisit;
+
+    @JsonProperty("comment") // Matches JSON key "comment"
+    private String comment;
 }
