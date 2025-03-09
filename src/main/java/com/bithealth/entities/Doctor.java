@@ -26,10 +26,4 @@ public class Doctor {
     private User user;
 
     private String specialization;
-    private String bio;
-    @CreatedDate // Automatically sets the creation timestamp
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate // Automatically updates the timestamp on every update
-    private LocalDateTime updatedAt;
 }
