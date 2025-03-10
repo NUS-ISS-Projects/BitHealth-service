@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.bithealth.dto.PatientUpdateRequestDTO;
 import com.bithealth.entities.Patient;
+import com.bithealth.entities.User;
 import com.bithealth.repositories.PatientRepository;
 
 @Service
@@ -24,13 +25,28 @@ public class PatientService {
     public Patient updatePatientProfile(Long patientId, PatientUpdateRequestDTO request) {
         Patient patient = patientRepository.findById(patientId).orElseThrow();
 
+        User user = patient.getUser();
+        if (user != null) {
+            if (request.getName() != null) {
+                user.setName(request.getName());
+            }
+            if (request.getEmail() != null) {
+                user.setEmail(request.getEmail());
+            }
+        }
+
+        if (request.getAvatar() != null) {
+            patient.setAvatar(request.getAvatar());
+        }
+        if (request.getContact_number() != null) {
+            patient.setContactNumber(request.getContact_number());
+        }
         if (request.getDateOfBirth() != null) {
             patient.setDateOfBirth(request.getDateOfBirth());
         }
         if (request.getGender() != null) {
             patient.setGender(request.getGender());
         }
-
         return patientRepository.save(patient);
     }
 }
