@@ -25,6 +25,8 @@ public class Patient {
     @JoinColumn(name = "user_id", referencedColumnName = "userId", unique = true)
     private User user;
 
+    private String avatar;
+    private String contactNumber;
     private String dateOfBirth;
     private String gender;
 
