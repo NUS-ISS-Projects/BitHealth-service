@@ -27,7 +27,7 @@ public class PatientController {
     @PutMapping("/{patientId}")
     public ResponseEntity<Patient> updatePatientProfile(
             @PathVariable Long patientId,
-            @RequestBody PatientUpdateRequestDTO request) { // Use the DTO
-        return ResponseEntity.ok(patientService.updatePatientProfile(patientId, request)); // Pass the request object
+            @RequestBody PatientUpdateRequestDTO request) {
+        return ResponseEntity.ok(patientService.updatePatientProfile(patientId, request));
     }
 }
