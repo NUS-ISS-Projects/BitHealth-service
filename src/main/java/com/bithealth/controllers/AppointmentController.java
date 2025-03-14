@@ -2,6 +2,7 @@ package com.bithealth.controllers;
 
 import com.bithealth.dto.AppointmentCreateRequestDTO;
 import com.bithealth.dto.AppointmentStatusUpdateDTO;
+import com.bithealth.dto.AppointmentRescheduleDTO;
 import com.bithealth.entities.Appointment;
 import com.bithealth.services.AppointmentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,8 +50,18 @@ public class AppointmentController {
         return ResponseEntity.noContent().build();
     }
 
+    // Update Appointment Date and Time (Reschedule)
+    @PutMapping("/reschedule/{appointmentId}")
+    public ResponseEntity<Appointment> updateAppointmentDateTime(
+            @PathVariable Long appointmentId,
+            @RequestBody AppointmentRescheduleDTO dto) {
+        Appointment updatedAppointment = appointmentService.updateAppointmentDateTime(appointmentId,
+                dto.getAppointmentDate(), dto.getAppointmentTime());
+        return ResponseEntity.ok(updatedAppointment);
+    }
+
     // Update Appointment Status
-    @PutMapping("/{appointmentId}")
+    @PutMapping("/updateStatus/{appointmentId}")
     public ResponseEntity<Appointment> updateAppointmentStatus(
             @PathVariable Long appointmentId,
             @RequestBody AppointmentStatusUpdateDTO dto) {

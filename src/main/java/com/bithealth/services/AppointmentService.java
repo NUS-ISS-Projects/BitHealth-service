@@ -10,6 +10,8 @@ import com.bithealth.repositories.PatientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -71,6 +73,14 @@ public class AppointmentService {
                 .orElseThrow(() -> new IllegalArgumentException("Appointment not found with ID: " + appointmentId));
         // Set status
         appointment.setStatus(Appointment.Status.valueOf(status.toUpperCase()));
+        return appointmentRepository.save(appointment);
+    }
+    public Appointment updateAppointmentDateTime(Long appointmentId, LocalDate newDate, LocalTime newTime) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Appointment not found with ID: " + appointmentId));
+        appointment.setAppointmentDate(newDate);
+        appointment.setAppointmentTime(newTime);
+        appointment.setStatus(Appointment.Status.PENDING);
         return appointmentRepository.save(appointment);
     }
 }
