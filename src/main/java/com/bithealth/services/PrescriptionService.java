@@ -40,11 +40,11 @@ public class PrescriptionService {
         // Create the Prescription
         Prescription prescription = new Prescription();
         prescription.setAppointment(appointment);
-        prescription.setMedicines(dto.getMedicines()); // Convert list to comma-separated string
-        prescription.setDosage(dto.getDosage());
-        prescription.setDuration(dto.getDuration());
-        prescription.setNotes(dto.getNotes());
-        prescription.setIsVerified(false); // Default value
+        prescription.setMedicineList(dto.getMedicineList());
+        prescription.setInvoiceNo(dto.getInvoiceNo());
+        prescription.setInvoiceDate(dto.getInvoiceDate());
+        //TODO: Do a check here before they are allow to set value as True
+        prescription.setIsVerified(true);
 
         return prescriptionRepository.save(prescription);
     }

@@ -17,19 +17,17 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public class MedicalCertificate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "certificate_id")
     private Long certificateId;
 
     @OneToOne
     @JoinColumn(name = "appointment_id", referencedColumnName = "appointmentId")
     private Appointment appointment;
 
+    private String certificateNumber;
+
     private LocalDate issueDate;
-    private String details;
-
+    private Integer noOfDays;
+    private LocalDate effectFrom;
     private Boolean isVerified;
-
-    @PrePersist
-    protected void onCreate() {
-        issueDate = LocalDate.now(); // Automatically set today's date on creation
-    }
 }

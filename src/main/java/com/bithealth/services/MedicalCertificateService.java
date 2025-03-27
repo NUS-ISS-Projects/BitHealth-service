@@ -26,8 +26,12 @@ public class MedicalCertificateService {
         // Create the MedicalCertificate
         MedicalCertificate certificate = new MedicalCertificate();
         certificate.setAppointment(appointment);
-        certificate.setDetails(dto.getDetails());
-        certificate.setIsVerified(false); // Default value
+        certificate.setCertificateNumber(dto.getCertificateNumber());
+        certificate.setNoOfDays(dto.getNoOfDays());
+        certificate.setEffectFrom(dto.getEffectFrom());
+        certificate.setIssueDate(dto.getIssueDate());
+        //TODO: Do a check here before they are allow to set value as True
+        certificate.setIsVerified(true);
 
         return medicalCertificateRepository.save(certificate);
     }
