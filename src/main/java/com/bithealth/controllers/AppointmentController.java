@@ -3,8 +3,11 @@ package com.bithealth.controllers;
 import com.bithealth.dto.AppointmentCreateRequestDTO;
 import com.bithealth.dto.AppointmentStatusUpdateDTO;
 import com.bithealth.dto.AppointmentRescheduleDTO;
+import com.bithealth.dto.DiagnosisUpdateDTO;
 import com.bithealth.entities.Appointment;
+import com.bithealth.entities.Diagnosis;
 import com.bithealth.services.AppointmentService;
+import com.bithealth.services.DiagnosisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +20,9 @@ public class AppointmentController {
 
     @Autowired
     private AppointmentService appointmentService;
+
+    @Autowired
+    private DiagnosisService diagnosisService;
 
     // Create an Appointment
     @PostMapping
@@ -67,5 +73,13 @@ public class AppointmentController {
             @RequestBody AppointmentStatusUpdateDTO dto) {
         Appointment updatedAppointment = appointmentService.updateAppointmentStatus(appointmentId, dto.getStatus());
         return ResponseEntity.ok(updatedAppointment);
+    }
+
+    @PutMapping("/diagnosis/{appointmentId}")
+    public ResponseEntity<Diagnosis> updateDiagnosis(
+            @PathVariable Long appointmentId,
+            @RequestBody DiagnosisUpdateDTO dto) {
+        Diagnosis diagnosis = diagnosisService.addOrUpdateDiagnosis(appointmentId, dto);
+        return ResponseEntity.ok(diagnosis);
     }
 }
