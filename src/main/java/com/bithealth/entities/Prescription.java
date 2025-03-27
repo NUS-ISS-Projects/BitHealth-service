@@ -1,22 +1,20 @@
 package com.bithealth.entities;
 
+import com.bithealth.helpers.MedicineItemListConverter;
+import com.bithealth.dto.MedicineItem;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-
-import java.time.LocalDateTime;
-
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-@Getter
-@Setter
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Data
 @Entity
 @Table(name = "prescriptions")
 @EntityListeners(AuditingEntityListener.class)
+
 public class Prescription {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,12 +24,12 @@ public class Prescription {
     @JoinColumn(name = "appointment_id", referencedColumnName = "appointmentId")
     private Appointment appointment;
 
-    @Column(columnDefinition = "TEXT")
-    private String medicines; // JSONB/TEXT field
+    @Convert(converter = MedicineItemListConverter.class)
+    @Column(name = "medicine_list", columnDefinition = "jsonb")
+    private List<MedicineItem> medicineList;
 
-    private String dosage;
-    private String duration;
-    private String notes;
+    private String invoiceNo;
+    private LocalDate invoiceDate;
 
     private Boolean isVerified;
 }
