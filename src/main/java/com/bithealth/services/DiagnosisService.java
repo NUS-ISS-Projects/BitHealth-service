@@ -30,4 +30,8 @@ public class DiagnosisService {
 
         return diagnosisRepository.save(diagnosis);
     }
+    public Diagnosis getDiagnosisByAppointment(Long appointmentId) {
+        return diagnosisRepository.findByAppointment_AppointmentId(appointmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Diagnosis not found for appointment with ID: " + appointmentId));
+    }
 }
