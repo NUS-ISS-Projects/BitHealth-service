@@ -82,4 +82,9 @@ public class AppointmentController {
         Diagnosis diagnosis = diagnosisService.addOrUpdateDiagnosis(appointmentId, dto);
         return ResponseEntity.ok(diagnosis);
     }
+    @GetMapping("/diagnosis/{appointmentId}")
+    public ResponseEntity<Diagnosis> getDiagnosisByAppointment(@PathVariable Long appointmentId) {
+        Diagnosis diagnosis = diagnosisService.getDiagnosisByAppointment(appointmentId);
+        return ResponseEntity.ok(diagnosis);
+    }
 }
