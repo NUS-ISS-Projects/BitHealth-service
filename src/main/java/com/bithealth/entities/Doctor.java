@@ -25,5 +25,6 @@ public class Doctor {
     @JoinColumn(name = "user_id", referencedColumnName = "userId", unique = true)
     private User user;
 
+    private String avatar;
     private String specialization;
 }
