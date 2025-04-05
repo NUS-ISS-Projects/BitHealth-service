@@ -30,8 +30,7 @@ public class MedicalCertificateService {
         certificate.setNoOfDays(dto.getNoOfDays());
         certificate.setEffectFrom(dto.getEffectFrom());
         certificate.setIssueDate(dto.getIssueDate());
-        //TODO: Do a check here before they are allow to set value as True
-        certificate.setIsVerified(true);
+        certificate.setIsVerified(false);
 
         return medicalCertificateRepository.save(certificate);
     }
@@ -44,12 +43,9 @@ public class MedicalCertificateService {
         MedicalCertificate certificate = medicalCertificateRepository.findById(certificateId)
                 .orElseThrow(
                         () -> new IllegalArgumentException("Medical certificate not found with ID: " + certificateId));
-
-        if (dto.getIsVerified() == null) {
-            throw new IllegalArgumentException("isVerified parameter is required");
-        }
-
-        certificate.setIsVerified(dto.getIsVerified());
+        //TODO: Do a check here before they are allow to set value as True
+        certificate.setLastVerified(dto.getLastVerified());
+        certificate.setIsVerified(true);
         return medicalCertificateRepository.save(certificate);
     }
 }
