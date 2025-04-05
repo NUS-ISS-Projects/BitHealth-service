@@ -5,9 +5,6 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Data
@@ -29,5 +26,6 @@ public class MedicalCertificate {
     private LocalDate issueDate;
     private Integer noOfDays;
     private LocalDate effectFrom;
+    private LocalDateTime lastVerified;
     private Boolean isVerified;
 }
