@@ -27,7 +27,7 @@ public class MedicalCertificateController {
         return ResponseEntity.ok(medicalCertificateService.getMedicalCertificateByAppointment(appointmentId));
     }
 
-    @PutMapping("/{certificateId}/verify")
+    @PutMapping("/verify/{certificateId}")
     public ResponseEntity<MedicalCertificate> verifyMedicalCertificate(
             @PathVariable Long certificateId,
             @RequestBody MedicalCertificateVerificationDTO dto) {
