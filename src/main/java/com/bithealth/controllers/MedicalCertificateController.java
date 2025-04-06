@@ -1,5 +1,6 @@
 package com.bithealth.controllers;
 
+import com.bithealth.dto.MedicalCertificateUpdateRequestDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,14 @@ public class MedicalCertificateController {
     @GetMapping("/appointment/{appointmentId}")
     public ResponseEntity<MedicalCertificate> getMedicalCertificateByAppointment(@PathVariable Long appointmentId) {
         return ResponseEntity.ok(medicalCertificateService.getMedicalCertificateByAppointment(appointmentId));
+    }
+
+    @PutMapping("/{certificateId}")
+    public ResponseEntity<MedicalCertificate> updateMedicalCertificate(
+            @PathVariable Long certificateId,
+            @RequestBody MedicalCertificateUpdateRequestDTO dto) {
+        MedicalCertificate updatedCertificate = medicalCertificateService.updateMedicalCertificate(certificateId, dto);
+        return ResponseEntity.ok(updatedCertificate);
     }
 
     @PutMapping("/verify/{certificateId}")

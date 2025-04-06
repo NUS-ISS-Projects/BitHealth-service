@@ -3,6 +3,8 @@ package com.bithealth.services;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import com.bithealth.dto.PatientUpdateRequestDTO;
+import com.bithealth.dto.PresciptionUpdateRequestDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -44,9 +46,18 @@ public class PrescriptionService {
         prescription.setInvoiceNo(dto.getInvoiceNo());
         prescription.setInvoiceDate(dto.getInvoiceDate());
         //TODO: Do a check here before they are allow to set value as True
-        prescription.setIsVerified(true);
+        prescription.setIsVerified(false);
 
         return prescriptionRepository.save(prescription);
+    }
+
+    public Prescription updatePrescription(Long prescriptionId, PresciptionUpdateRequestDTO dto) {
+        Prescription existingPrescription = prescriptionRepository.findById(prescriptionId)
+                .orElseThrow(() -> new IllegalArgumentException("Prescription not found with ID: " + prescriptionId));
+        existingPrescription.setMedicineList(dto.getMedicineList());
+        existingPrescription.setInvoiceDate(dto.getInvoiceDate());
+        existingPrescription.setIsVerified(false);
+        return prescriptionRepository.save(existingPrescription);
     }
 
     public Prescription getPrescriptionByAppointment(Long appointmentId) {
@@ -56,12 +67,9 @@ public class PrescriptionService {
     public Prescription verifyPrescription(Long prescriptionId, PrescriptionVerificationDTO dto) {
         Prescription prescription = prescriptionRepository.findById(prescriptionId)
                 .orElseThrow(() -> new IllegalArgumentException("Prescription not found with ID: " + prescriptionId));
-
-        if (dto.getIsVerified() == null) {
-            throw new IllegalArgumentException("isVerified parameter is required");
-        }
-
-        prescription.setIsVerified(dto.getIsVerified());
+        //TODO: Do a check here before they are allow to set value as True
+        prescription.setLastVerified(dto.getLastVerified());
+        prescription.setIsVerified(true);
         return prescriptionRepository.save(prescription);
     }
 
