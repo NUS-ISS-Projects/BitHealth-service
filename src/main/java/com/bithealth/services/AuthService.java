@@ -1,5 +1,10 @@
 package com.bithealth.services;
 
+import java.util.Optional;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.bithealth.dto.UserRegistrationDTO;
 import com.bithealth.entities.Doctor;
 import com.bithealth.entities.Patient;
@@ -8,10 +13,6 @@ import com.bithealth.entities.User.Role;
 import com.bithealth.repositories.DoctorRepository;
 import com.bithealth.repositories.PatientRepository;
 import com.bithealth.repositories.UserRepository;
-import java.util.Optional;
-
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
@@ -62,11 +63,13 @@ public class AuthService {
         return savedUser;
     }
 
-    public User getUserProfile(Long userId) {
-        Optional<User> userOptional = userRepository.findById(userId);
+    public User getUserProfile(String userEmail) {
+        Optional<User> userOptional = userRepository.findByEmail(userEmail);
         if (userOptional.isEmpty()) {
-            throw new IllegalArgumentException("User not found with ID: " + userId);
+            throw new IllegalArgumentException("User not found with email: " + userEmail);
         }
         return userOptional.get();
     }
+
+
 }
