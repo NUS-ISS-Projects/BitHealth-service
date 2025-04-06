@@ -1,5 +1,6 @@
 package com.bithealth.services;
 
+import com.bithealth.dto.MedicalCertificateUpdateRequestDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +33,16 @@ public class MedicalCertificateService {
         certificate.setIssueDate(dto.getIssueDate());
         certificate.setIsVerified(false);
 
+        return medicalCertificateRepository.save(certificate);
+    }
+
+    public MedicalCertificate updateMedicalCertificate(Long certificateId, MedicalCertificateUpdateRequestDTO dto) {
+        MedicalCertificate certificate = medicalCertificateRepository.findById(certificateId)
+                .orElseThrow(() -> new IllegalArgumentException("Medical Certificate not found with ID: " + certificateId));
+        certificate.setNoOfDays(dto.getNoOfDays());
+        certificate.setEffectFrom(dto.getEffectFrom());
+        certificate.setIssueDate(dto.getIssueDate());
+        certificate.setIsVerified(false);
         return medicalCertificateRepository.save(certificate);
     }
 
