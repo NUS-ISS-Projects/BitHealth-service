@@ -9,6 +9,7 @@ import org.hibernate.type.SqlTypes;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -31,6 +32,6 @@ public class Prescription {
 
     private String invoiceNo;
     private LocalDate invoiceDate;
-
+    private LocalDateTime lastVerified;
     private Boolean isVerified;
 }

@@ -1,6 +1,8 @@
 package com.bithealth.controllers;
 
 import java.io.IOException;
+
+import com.bithealth.dto.PresciptionUpdateRequestDTO;
 import org.springframework.core.io.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -31,7 +33,13 @@ public class PrescriptionController {
         return ResponseEntity.ok(prescriptionService.getPrescriptionByAppointment(appointmentId));
     }
 
-    @PutMapping("/{prescriptionId}/verify")
+    @PutMapping("/{prescriptionId}")
+    public ResponseEntity<Prescription> updatePrescription(@PathVariable Long prescriptionId,@RequestBody PresciptionUpdateRequestDTO dto) {
+        Prescription prescription = prescriptionService.updatePrescription(prescriptionId, dto);
+        return ResponseEntity.ok(prescription);
+    }
+
+    @PutMapping("/verify/{prescriptionId}")
     public ResponseEntity<Prescription> verifyPrescription(
             @PathVariable Long prescriptionId,
             @RequestBody PrescriptionVerificationDTO dto) {
