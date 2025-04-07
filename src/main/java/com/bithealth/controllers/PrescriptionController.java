@@ -46,20 +46,4 @@ public class PrescriptionController {
         Prescription updatedPrescription = prescriptionService.verifyPrescription(prescriptionId, dto);
         return ResponseEntity.ok(updatedPrescription);
     }
-
-    @GetMapping("/{prescriptionId}/download")
-    public ResponseEntity<Resource> downloadPrescription(
-            @PathVariable Long prescriptionId,
-            @RequestParam String format) throws IOException, DocumentException {
-        // Generate the file
-        Resource file = prescriptionService.generatePrescriptionFile(prescriptionId, format);
-
-        // Set headers
-        String contentType = "application/pdf".equals(format) ? "application/pdf"
-                : "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=prescription." + format)
-                .contentType(MediaType.parseMediaType(contentType))
-                .body(file);
-    }
 }
