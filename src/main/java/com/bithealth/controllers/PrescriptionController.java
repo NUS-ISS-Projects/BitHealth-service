@@ -1,12 +1,7 @@
 package com.bithealth.controllers;
 
-import java.io.IOException;
-
 import com.bithealth.dto.PresciptionUpdateRequestDTO;
-import org.springframework.core.io.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +9,6 @@ import com.bithealth.dto.PrescriptionCreateRequestDTO;
 import com.bithealth.dto.PrescriptionVerificationDTO;
 import com.bithealth.entities.Prescription;
 import com.bithealth.services.PrescriptionService;
-import com.itextpdf.text.DocumentException;
 
 @RestController
 @RequestMapping("/api/prescriptions")
