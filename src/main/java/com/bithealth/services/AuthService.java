@@ -1,8 +1,6 @@
 package com.bithealth.services;
 
 import java.util.Optional;
-
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.bithealth.dto.UserRegistrationDTO;
@@ -13,13 +11,10 @@ import com.bithealth.entities.User.Role;
 import com.bithealth.repositories.DoctorRepository;
 import com.bithealth.repositories.PatientRepository;
 import com.bithealth.repositories.UserRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
     private final PatientRepository patientRepository;
     private final DoctorRepository doctorRepository;
 
@@ -28,16 +23,14 @@ public class AuthService {
         this.userRepository = userRepository;
         this.doctorRepository = doctorRepository;
         this.patientRepository = patientRepository;
-        this.passwordEncoder = new BCryptPasswordEncoder();
-
     }
 
     public User registerUser(UserRegistrationDTO dto) {
         User user = new User();
         user.setName(dto.getName());
         user.setEmail(dto.getEmail());
-        user.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
         user.setRole(Role.valueOf(dto.getRole().toUpperCase()));
+        user.setFirebaseUid(dto.getFirebaseUid());
         // Save the user first
         User savedUser = userRepository.save(user);
 
@@ -61,7 +54,6 @@ public class AuthService {
             // Save the patient entry
             patientRepository.save(patient);
         }
-
         return savedUser;
     }
 
