@@ -44,7 +44,8 @@ public class User {
 
     @Column(nullable = false, unique = true)
     private String email;
-    private String passwordHash;
+
+    private String firebaseUid;
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -58,47 +59,4 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
     @JsonIgnore
     private Patient patient;
-
-    // Getters and Setters
-    public Long getId() {
-        return userId;
-    }
-
-    public void setId(Long id) {
-        this.userId = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 }
