@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.bithealth.dto.MedicalCertificateCreateRequestDTO;
+import com.bithealth.dto.MedicalCertificateUpdateRequestDTO;
 import com.bithealth.dto.MedicalCertificateVerificationDTO;
 import com.bithealth.entities.Appointment;
 import com.bithealth.entities.MedicalCertificate;
@@ -30,9 +31,18 @@ public class MedicalCertificateService {
         certificate.setNoOfDays(dto.getNoOfDays());
         certificate.setEffectFrom(dto.getEffectFrom());
         certificate.setIssueDate(dto.getIssueDate());
-        //TODO: Do a check here before they are allow to set value as True
-        certificate.setIsVerified(true);
+        certificate.setIsVerified(false);
 
+        return medicalCertificateRepository.save(certificate);
+    }
+
+    public MedicalCertificate updateMedicalCertificate(Long certificateId, MedicalCertificateUpdateRequestDTO dto) {
+        MedicalCertificate certificate = medicalCertificateRepository.findById(certificateId)
+                .orElseThrow(() -> new IllegalArgumentException("Medical Certificate not found with ID: " + certificateId));
+        certificate.setNoOfDays(dto.getNoOfDays());
+        certificate.setEffectFrom(dto.getEffectFrom());
+        certificate.setIssueDate(dto.getIssueDate());
+        certificate.setIsVerified(false);
         return medicalCertificateRepository.save(certificate);
     }
 
@@ -44,12 +54,9 @@ public class MedicalCertificateService {
         MedicalCertificate certificate = medicalCertificateRepository.findById(certificateId)
                 .orElseThrow(
                         () -> new IllegalArgumentException("Medical certificate not found with ID: " + certificateId));
-
-        if (dto.getIsVerified() == null) {
-            throw new IllegalArgumentException("isVerified parameter is required");
-        }
-
-        certificate.setIsVerified(dto.getIsVerified());
+        //TODO: Do a check here before they are allow to set value as True
+        certificate.setLastVerified(dto.getLastVerified());
+        certificate.setIsVerified(true);
         return medicalCertificateRepository.save(certificate);
     }
 }

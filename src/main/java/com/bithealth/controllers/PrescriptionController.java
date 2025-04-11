@@ -1,18 +1,28 @@
 package com.bithealth.controllers;
 
+<<<<<<< HEAD
 import java.io.IOException;
-import org.springframework.core.io.Resource;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import com.bithealth.dto.PresciptionUpdateRequestDTO;
 import com.bithealth.dto.PrescriptionCreateRequestDTO;
 import com.bithealth.dto.PrescriptionVerificationDTO;
 import com.bithealth.entities.Prescription;
 import com.bithealth.services.PrescriptionService;
 import com.itextpdf.text.DocumentException;
+=======
+>>>>>>> 5c77924c26de2cac3ec99430555ac8fd545ca8d9
 
 @RestController
 @RequestMapping("/api/prescriptions")
@@ -31,7 +41,13 @@ public class PrescriptionController {
         return ResponseEntity.ok(prescriptionService.getPrescriptionByAppointment(appointmentId));
     }
 
-    @PutMapping("/{prescriptionId}/verify")
+    @PutMapping("/{prescriptionId}")
+    public ResponseEntity<Prescription> updatePrescription(@PathVariable Long prescriptionId,@RequestBody PresciptionUpdateRequestDTO dto) {
+        Prescription prescription = prescriptionService.updatePrescription(prescriptionId, dto);
+        return ResponseEntity.ok(prescription);
+    }
+
+    @PutMapping("/verify/{prescriptionId}")
     public ResponseEntity<Prescription> verifyPrescription(
             @PathVariable Long prescriptionId,
             @RequestBody PrescriptionVerificationDTO dto) {
