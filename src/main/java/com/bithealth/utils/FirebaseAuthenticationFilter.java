@@ -1,9 +1,14 @@
 package com.bithealth.utils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
+import com.bithealth.entities.User;
+import com.bithealth.repositories.UserRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -19,9 +24,11 @@ import jakarta.servlet.http.HttpServletResponse;
 public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtValidator jwtValidator;
+    private final UserRepository userRepository;
 
-    public FirebaseAuthenticationFilter(JwtValidator jwtValidator) {
+    public FirebaseAuthenticationFilter(JwtValidator jwtValidator, UserRepository userRepository) {
         this.jwtValidator = jwtValidator;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -36,15 +43,26 @@ public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
                 // Validate the token
                 FirebaseToken decodedToken = jwtValidator.validateToken(idToken);
 
-                // Extract user details
-                String uid = decodedToken.getUid();
-                String email = decodedToken.getEmail();
+                // Extract the UID from the token
+                String firebaseUid = decodedToken.getUid();
+
+                // Look up the local user using the firebaseUid
+                User localUser = userRepository.findByFirebaseUid(firebaseUid)
+                        .orElseThrow(() -> new RuntimeException("User not found with UID: " + firebaseUid));
+
+                // Create authorities based on the user's role
+                List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+                if (localUser.getRole() == User.Role.DOCTOR) {
+                    authorities.add(new SimpleGrantedAuthority("ROLE_DOCTOR"));
+                } else if (localUser.getRole() == User.Role.PATIENT) {
+                    authorities.add(new SimpleGrantedAuthority("ROLE_PATIENT"));
+                }
 
                 // Set authentication in the SecurityContext
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        uid,
+                        localUser,
                         null,
-                        Collections.emptyList()
+                        authorities
                 );
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (Exception e) {

@@ -6,10 +6,13 @@ import com.bithealth.dto.AppointmentRescheduleDTO;
 import com.bithealth.dto.DiagnosisUpdateDTO;
 import com.bithealth.entities.Appointment;
 import com.bithealth.entities.Diagnosis;
+import com.bithealth.entities.User;
 import com.bithealth.services.AppointmentService;
 import com.bithealth.services.DiagnosisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,20 +29,28 @@ public class AppointmentController {
 
     // Create an Appointment
     @PostMapping
-    public ResponseEntity<Appointment> createAppointment(@RequestBody AppointmentCreateRequestDTO request) {
+    @PreAuthorize("hasRole('PATIENT')")
+    public ResponseEntity<Appointment> createAppointment( @RequestHeader("Authorization") String authorizationHeader,
+                                                          @RequestBody AppointmentCreateRequestDTO request) {
         Appointment appointment = appointmentService.createAppointment(request);
         return ResponseEntity.status(201).body(appointment);
     }
 
     // Get Available Appointments for a Doctor
     @GetMapping("/doctor/{doctorId}")
-    public ResponseEntity<List<Appointment>> getAvailableAppointmentsForDoctor(@PathVariable Long doctorId) {
+    @PreAuthorize("hasRole('DOCTOR')")
+    public ResponseEntity<List<Appointment>> getAvailableAppointmentsForDoctor() {
+        User authUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long doctorId = authUser.getDoctor().getDoctorId();
         return ResponseEntity.ok(appointmentService.getAvailableAppointmentsForDoctor(doctorId));
     }
 
     // Get Appointments for a Patient
-    @GetMapping("/patient/{patientId}")
-    public ResponseEntity<List<Appointment>> getAppointmentsForPatient(@PathVariable Long patientId) {
+    @GetMapping("/patient")
+    @PreAuthorize("hasRole('PATIENT')")
+    public ResponseEntity<List<Appointment>> getAppointmentsForPatient() {
+        User authUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long patientId = authUser.getPatient().getPatientId();
         return ResponseEntity.ok(appointmentService.getAppointmentsForPatient(patientId));
     }
 
@@ -58,6 +69,7 @@ public class AppointmentController {
 
     // Update Appointment Date and Time (Reschedule)
     @PutMapping("/reschedule/{appointmentId}")
+    @PreAuthorize("hasRole('PATIENT')")
     public ResponseEntity<Appointment> updateAppointmentDateTime(
             @PathVariable Long appointmentId,
             @RequestBody AppointmentRescheduleDTO dto) {
@@ -68,6 +80,7 @@ public class AppointmentController {
 
     // Update Appointment Status
     @PutMapping("/updateStatus/{appointmentId}")
+    @PreAuthorize("hasRole('DOCTOR')")
     public ResponseEntity<Appointment> updateAppointmentStatus(
             @PathVariable Long appointmentId,
             @RequestBody AppointmentStatusUpdateDTO dto) {
@@ -76,6 +89,7 @@ public class AppointmentController {
     }
 
     @PutMapping("/diagnosis/{appointmentId}")
+    @PreAuthorize("hasRole('DOCTOR')")
     public ResponseEntity<Diagnosis> updateDiagnosis(
             @PathVariable Long appointmentId,
             @RequestBody DiagnosisUpdateDTO dto) {
