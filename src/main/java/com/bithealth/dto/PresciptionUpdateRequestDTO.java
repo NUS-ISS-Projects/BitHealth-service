@@ -1,9 +1,9 @@
 package com.bithealth.dto;
 
-import lombok.Data;
-
 import java.time.LocalDate;
 import java.util.List;
+
+import lombok.Data;
 
 @Data
 public class PresciptionUpdateRequestDTO {

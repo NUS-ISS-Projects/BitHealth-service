@@ -1,8 +1,6 @@
 package com.bithealth.entities;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import jakarta.persistence.*;
-import lombok.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -22,7 +20,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")

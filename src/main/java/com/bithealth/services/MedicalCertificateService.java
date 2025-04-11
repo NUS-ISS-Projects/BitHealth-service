@@ -1,10 +1,10 @@
 package com.bithealth.services;
 
-import com.bithealth.dto.MedicalCertificateUpdateRequestDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.bithealth.dto.MedicalCertificateCreateRequestDTO;
+import com.bithealth.dto.MedicalCertificateUpdateRequestDTO;
 import com.bithealth.dto.MedicalCertificateVerificationDTO;
 import com.bithealth.entities.Appointment;
 import com.bithealth.entities.MedicalCertificate;
