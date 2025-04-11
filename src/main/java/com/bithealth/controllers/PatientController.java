@@ -35,4 +35,14 @@ public class PatientController {
             @RequestBody PatientUpdateRequestDTO request) {
         return ResponseEntity.ok(patientService.updatePatientProfile(patientId, request));
     }
+
+    // Get profile using JWT token 
+    // Get Patient Profile
+    @GetMapping("/profile/{userId}")
+    public ResponseEntity<Patient> getPatientProfileWithUser(@PathVariable Long userId) {
+        return patientService.getPatientProfileUserId(userId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
 }

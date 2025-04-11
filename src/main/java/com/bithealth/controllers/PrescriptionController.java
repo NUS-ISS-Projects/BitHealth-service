@@ -1,10 +1,16 @@
 package com.bithealth.controllers;
 
-import com.bithealth.dto.PresciptionUpdateRequestDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import com.bithealth.dto.PresciptionUpdateRequestDTO;
 import com.bithealth.dto.PrescriptionCreateRequestDTO;
 import com.bithealth.dto.PrescriptionVerificationDTO;
 import com.bithealth.entities.Prescription;
@@ -40,4 +46,5 @@ public class PrescriptionController {
         Prescription updatedPrescription = prescriptionService.verifyPrescription(prescriptionId, dto);
         return ResponseEntity.ok(updatedPrescription);
     }
+
 }

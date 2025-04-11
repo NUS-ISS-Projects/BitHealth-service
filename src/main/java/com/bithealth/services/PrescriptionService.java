@@ -1,14 +1,13 @@
 package com.bithealth.services;
-import com.bithealth.dto.PresciptionUpdateRequestDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.bithealth.dto.PresciptionUpdateRequestDTO;
 import com.bithealth.dto.PrescriptionCreateRequestDTO;
 import com.bithealth.dto.PrescriptionVerificationDTO;
 import com.bithealth.entities.Appointment;
 import com.bithealth.entities.Prescription;
 import com.bithealth.repositories.AppointmentRepository;
-
 import com.bithealth.repositories.PrescriptionRepository;
 
 @Service
