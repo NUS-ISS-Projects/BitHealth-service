@@ -21,6 +21,11 @@ public class PatientService {
         return patientRepository.findById(patientId);
     }
 
+    // Get Patient Profile
+    public Optional<Patient> getPatientProfileUserId(Long userId) {
+        return patientRepository.findByUserId(userId);
+    }
+
     // Update Patient Profile
     public Patient updatePatientProfile(Long patientId, PatientUpdateRequestDTO request) {
         Patient patient = patientRepository.findById(patientId).orElseThrow();
