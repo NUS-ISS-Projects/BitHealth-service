@@ -45,7 +45,5 @@ public class AuthController {
             String email = JwtUtil.getEmailFromToken(token);
             User user = authService.getUserProfile(email);
             return ResponseEntity.ok(user);
-         
-
-
-}}
+         }
+}
