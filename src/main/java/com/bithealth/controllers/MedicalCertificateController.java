@@ -34,9 +34,6 @@ public class MedicalCertificateController {
         return ResponseEntity.ok(medicalCertificateService.getMedicalCertificateByAppointment(appointmentId));
     }
 
-<<<<<<< HEAD
-    @PutMapping("/{certificateId}/verify")
-=======
     @PutMapping("/{certificateId}")
     public ResponseEntity<MedicalCertificate> updateMedicalCertificate(
             @PathVariable Long certificateId,
@@ -46,7 +43,6 @@ public class MedicalCertificateController {
     }
 
     @PutMapping("/verify/{certificateId}")
->>>>>>> 5c77924c26de2cac3ec99430555ac8fd545ca8d9
     public ResponseEntity<MedicalCertificate> verifyMedicalCertificate(
             @PathVariable Long certificateId,
             @RequestBody MedicalCertificateVerificationDTO dto) {

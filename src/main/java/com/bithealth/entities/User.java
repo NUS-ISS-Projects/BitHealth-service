@@ -1,11 +1,6 @@
 package com.bithealth.entities;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-<<<<<<< HEAD
-=======
-import jakarta.persistence.*;
-import lombok.*;
->>>>>>> 5c77924c26de2cac3ec99430555ac8fd545ca8d9
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -25,10 +20,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-<<<<<<< HEAD
-=======
-import java.time.LocalDateTime;
->>>>>>> 5c77924c26de2cac3ec99430555ac8fd545ca8d9
 
 @Entity
 @Table(name = "users")
@@ -50,12 +41,8 @@ public class User {
 
     @Column(nullable = false, unique = true)
     private String email;
-<<<<<<< HEAD
-    private String passwordHash;
-=======
 
     private String firebaseUid;
->>>>>>> 5c77924c26de2cac3ec99430555ac8fd545ca8d9
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -69,48 +56,4 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
     @JsonIgnore
     private Patient patient;
-<<<<<<< HEAD
-
-    // Getters and Setters
-    public Long getId() {
-        return userId;
-    }
-
-    public void setId(Long id) {
-        this.userId = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-=======
->>>>>>> 5c77924c26de2cac3ec99430555ac8fd545ca8d9
 }

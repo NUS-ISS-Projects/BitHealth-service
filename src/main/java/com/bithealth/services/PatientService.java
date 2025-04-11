@@ -49,4 +49,11 @@ public class PatientService {
         }
         return patientRepository.save(patient);
     }
+
+    public Optional<Patient> getPatientProfileUserId(Long userId) {
+        // TODO Auto-generated method stub
+        return patientRepository.findByUserId(userId);    
+    }
+
+    
 }
