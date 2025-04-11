@@ -1,6 +1,11 @@
 package com.bithealth.entities;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+<<<<<<< HEAD
+=======
+import jakarta.persistence.*;
+import lombok.*;
+>>>>>>> 5c77924c26de2cac3ec99430555ac8fd545ca8d9
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -20,6 +25,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+<<<<<<< HEAD
+=======
+import java.time.LocalDateTime;
+>>>>>>> 5c77924c26de2cac3ec99430555ac8fd545ca8d9
 
 @Entity
 @Table(name = "users")
@@ -41,7 +50,12 @@ public class User {
 
     @Column(nullable = false, unique = true)
     private String email;
+<<<<<<< HEAD
     private String passwordHash;
+=======
+
+    private String firebaseUid;
+>>>>>>> 5c77924c26de2cac3ec99430555ac8fd545ca8d9
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -55,6 +69,7 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
     @JsonIgnore
     private Patient patient;
+<<<<<<< HEAD
 
     // Getters and Setters
     public Long getId() {
@@ -96,4 +111,6 @@ public class User {
     public void setRole(Role role) {
         this.role = role;
     }
+=======
+>>>>>>> 5c77924c26de2cac3ec99430555ac8fd545ca8d9
 }
