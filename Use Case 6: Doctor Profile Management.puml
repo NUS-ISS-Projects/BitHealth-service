@@ -1,0 +1,44 @@
+@startuml Doctor Profile Management
+
+title Doctor Profile Management (View & Update)
+
+actor Doctor
+boundary REST_API
+control JwtAuthFilter
+control DoctorController
+control DoctorService
+database DoctorRepository
+
+'View Doctor Profile'
+Doctor -> REST_API : GET /api/doctors/{doctorId} + JWT
+REST_API -> JwtAuthFilter : Validate JWT (Doctor Role)
+JwtAuthFilter -> DoctorController : Authenticated
+DoctorController -> DoctorService : Fetch Profile
+DoctorService -> DoctorRepository : findById(doctorId)
+DoctorRepository --> DoctorService : Doctor Data
+DoctorService --> DoctorController : Doctor DTO
+DoctorController --> REST_API : Doctor DTO Response
+REST_API --> Doctor : Profile data (DTO)
+
+'Update Doctor Profile'
+Doctor -> REST_API : PUT /api/doctors/{doctorId} + JWT
+REST_API -> JwtAuthFilter : Validate JWT (Doctor Role & Ownership)
+JwtAuthFilter -> DoctorController : Authenticated
+DoctorController -> DoctorService : Update profile
+DoctorService -> DoctorRepository : Fetch & validate ownership
+DoctorRepository --> DoctorService : Ownership confirmed
+DoctorService -> DoctorRepository : Update details
+DoctorRepository --> DoctorService : Updated Data
+DoctorService --> DoctorController : Updated DTO
+DoctorController --> REST_API : Updated DTO response
+REST_API --> Doctor : Updated Profile (DTO)
+
+note right of DoctorService
+**Security Controls:**
+- JWT Authentication & Role check
+- Ownership validation
+- Input validation and sanitization
+- Audit logging for profile updates
+end note
+
+@enduml

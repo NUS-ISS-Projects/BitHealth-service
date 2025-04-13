@@ -1,0 +1,47 @@
+@startuml Diagnosis Management
+
+title Diagnosis Management (Create/Update & View)
+
+actor Doctor
+actor Patient
+boundary REST_API
+control JwtAuthFilter
+control AppointmentController
+control DiagnosisService
+database DiagnosisRepository
+database AppointmentRepository
+
+'Doctor creates/updates Diagnosis'
+Doctor -> REST_API : PUT /api/appointments/diagnosis/{id} + JWT
+REST_API -> JwtAuthFilter : Validate JWT (Doctor Role)
+JwtAuthFilter -> AppointmentController : Authenticated
+AppointmentController -> DiagnosisService : Create/Update Diagnosis
+DiagnosisService -> AppointmentRepository : Verify appointment ownership
+AppointmentRepository --> DiagnosisService : Valid appointment
+DiagnosisService -> DiagnosisRepository : Save/Update diagnosis
+DiagnosisRepository --> DiagnosisService : Diagnosis saved
+DiagnosisService --> AppointmentController : Diagnosis DTO
+AppointmentController --> REST_API : Diagnosis DTO Response
+REST_API --> Doctor : Diagnosis DTO
+
+'Patient views Diagnosis'
+Patient -> REST_API : GET /api/appointments/diagnosis/{id} + JWT
+REST_API -> JwtAuthFilter : Validate JWT (Patient Role & Ownership)
+JwtAuthFilter -> AppointmentController : Authenticated
+AppointmentController -> DiagnosisService : Fetch Diagnosis
+DiagnosisService -> AppointmentRepository : Verify patient appointment ownership
+AppointmentRepository --> DiagnosisService : Valid ownership
+DiagnosisService -> DiagnosisRepository : Fetch Diagnosis
+DiagnosisRepository --> DiagnosisService : Diagnosis data
+DiagnosisService --> AppointmentController : Diagnosis DTO
+AppointmentController --> REST_API : Diagnosis DTO
+REST_API --> Patient : Diagnosis DTO response
+
+note right of DiagnosisService
+**Security Controls:**
+- JWT Authentication, Role-Based Access Control
+- Strict ownership validation (Doctor-Patient-Appointment)
+- DTO responses to avoid entity exposure
+end note
+
+@enduml

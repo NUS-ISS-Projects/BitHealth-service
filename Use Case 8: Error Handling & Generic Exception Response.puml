@@ -1,0 +1,31 @@
+@startuml Generic Error Handling
+
+title Generic Error Handling with @ControllerAdvice
+
+actor User
+boundary REST_API
+control JwtAuthFilter
+control GlobalExceptionHandler as ExceptionHandler #pink
+control Controllers
+control Services
+database Database
+
+User -> REST_API : API request
+REST_API -> JwtAuthFilter : Authenticate JWT
+JwtAuthFilter -> Controllers : Forward request
+Controllers -> Services : Process request
+Services -> Database : Query/Update data
+Database -[#red]-> Services : Exception/Error occurs!
+Services -[#red]-> Controllers : Exception propagates
+Controllers -[#red]-> ExceptionHandler : Exception intercepted
+ExceptionHandler --> REST_API : Generic Error Response
+REST_API --> User : Standardized Error Response (no stack trace)
+
+note right of ExceptionHandler
+**Security Controls:**
+- No stack trace exposure
+- Consistent error format
+- Protect sensitive error details
+end note
+
+@enduml

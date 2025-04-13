@@ -1,0 +1,50 @@
+@startuml Appointment Management
+
+title Appointment Management (Create & Approve)
+
+actor Patient
+actor Doctor
+boundary REST_API
+control JwtAuthFilter
+control AppointmentController
+control AppointmentService
+database AppointmentRepository
+database DoctorRepository
+database PatientRepository
+
+'Appointment Creation by Patient'
+Patient -> REST_API : POST /api/appointments + JWT
+REST_API -> JwtAuthFilter : Validate JWT & Patient Role
+JwtAuthFilter -> AppointmentController : Authenticated
+AppointmentController -> AppointmentService : Create appointment
+AppointmentService -> PatientRepository : Fetch patient details
+AppointmentService -> DoctorRepository : Fetch doctor details
+PatientRepository --> AppointmentService : Patient found
+DoctorRepository --> AppointmentService : Doctor found
+AppointmentService -> AppointmentRepository : Save appointment (PENDING)
+AppointmentRepository --> AppointmentService : Appointment created
+AppointmentService --> AppointmentController : Return DTO
+AppointmentController --> REST_API : Appointment DTO
+REST_API --> Patient : Appointment created response DTO
+
+'Appointment Approval by Doctor'
+Doctor -> REST_API : PUT /api/appointments/updateStatus/{id} + JWT
+REST_API -> JwtAuthFilter : Validate JWT & Doctor role
+JwtAuthFilter -> AppointmentController : Authenticated
+AppointmentController -> AppointmentService : Update appointment status
+AppointmentService -> AppointmentRepository : Verify appointment-doctor link
+AppointmentRepository --> AppointmentService : Ownership valid
+AppointmentService -> AppointmentRepository : Update appointment status (CONFIRMED)
+AppointmentRepository --> AppointmentService : Updated appointment
+AppointmentService --> AppointmentController : Appointment DTO
+AppointmentController --> REST_API : Updated appointment DTO
+REST_API --> Doctor : Appointment approval response DTO
+
+note right of AppointmentService
+**Security Controls:**
+- JWT Authentication & RBAC checks
+- Ownership validation
+- Input validation & sanitization
+end note
+
+@enduml

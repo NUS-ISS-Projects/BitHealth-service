@@ -1,0 +1,47 @@
+@startuml Prescription Management
+
+title Prescription Creation & Verification
+
+actor Doctor
+boundary REST_API
+control JwtAuthFilter
+control PrescriptionController
+control PrescriptionService
+database PrescriptionRepository
+database AppointmentRepository
+
+'Prescription Creation'
+Doctor -> REST_API : POST /api/prescriptions + JWT
+REST_API -> JwtAuthFilter : JWT & Doctor role validated
+JwtAuthFilter -> PrescriptionController : Authenticated
+PrescriptionController -> PrescriptionService : Create Prescription
+PrescriptionService -> AppointmentRepository : Verify appointment exists
+AppointmentRepository --> PrescriptionService : Appointment valid
+PrescriptionService -> PrescriptionRepository : Save prescription (unverified)
+PrescriptionRepository --> PrescriptionService : Prescription saved
+PrescriptionService --> PrescriptionController : DTO Response
+PrescriptionController --> REST_API : Prescription DTO
+REST_API --> Doctor : Prescription created DTO
+
+'Prescription Verification'
+Doctor -> REST_API : PUT /api/prescriptions/verify/{id} + JWT
+REST_API -> JwtAuthFilter : JWT & Doctor role validated
+JwtAuthFilter -> PrescriptionController : Authenticated
+PrescriptionController -> PrescriptionService : Verify Prescription
+PrescriptionService -> PrescriptionRepository : Check prescription & ownership
+PrescriptionRepository --> PrescriptionService : Ownership valid
+PrescriptionService -> PrescriptionRepository : Update (verified=true)
+PrescriptionRepository --> PrescriptionService : Prescription verified
+PrescriptionService --> PrescriptionController : Verified DTO
+PrescriptionController --> REST_API : Verified DTO
+REST_API --> Doctor : Prescription verified response DTO
+
+note right of PrescriptionService
+**Security Controls:**
+- JWT authentication, RBAC
+- Ownership check (Doctor-Appointment)
+- Data validation
+- Audit logging (verification event)
+end note
+
+@enduml

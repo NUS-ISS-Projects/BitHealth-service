@@ -1,0 +1,30 @@
+@startuml User Authentication & Authorization
+
+title User Authentication & Authorization
+
+actor User
+boundary REST_API
+control JwtAuthFilter
+control AuthController
+control AuthService
+database UserRepository
+
+User -> REST_API : POST /api/auth/login (email/password)
+REST_API -> JwtAuthFilter : Forward credentials
+JwtAuthFilter -> AuthController : Validate credentials
+AuthController -> AuthService : Check Credentials
+AuthService -> UserRepository : findByEmail(email)
+UserRepository --> AuthService : User details (hashed password, roles)
+AuthService --> AuthController : Credentials valid
+AuthController --> JwtAuthFilter : Generate JWT Token
+JwtAuthFilter --> REST_API : JWT Token
+REST_API --> User : JWT Token response
+
+note right of JwtAuthFilter
+**Security Controls:**
+- JWT Token Validation
+- Password Hashing (bcrypt)
+- Rate Limiting (max 5 login attempts/min)
+end note
+
+@enduml

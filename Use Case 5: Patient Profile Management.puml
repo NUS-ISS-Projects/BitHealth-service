@@ -1,0 +1,44 @@
+@startuml Patient Profile Management
+
+title Patient Profile Management (View & Update)
+
+actor Patient
+boundary REST_API
+control JwtAuthFilter
+control PatientController
+control PatientService
+database PatientRepository
+
+'View Patient Profile'
+Patient -> REST_API : GET /api/patients/{patientId} + JWT
+REST_API -> JwtAuthFilter : Validate JWT (Patient Role)
+JwtAuthFilter -> PatientController : Authenticated
+PatientController -> PatientService : Fetch Profile
+PatientService -> PatientRepository : findById(patientId)
+PatientRepository --> PatientService : Patient Data
+PatientService --> PatientController : Patient DTO
+PatientController --> REST_API : Patient DTO Response
+REST_API --> Patient : Profile data (DTO)
+
+'Update Patient Profile'
+Patient -> REST_API : PUT /api/patients/{patientId} + JWT
+REST_API -> JwtAuthFilter : Validate JWT (Patient Role & Ownership)
+JwtAuthFilter -> PatientController : Authenticated
+PatientController -> PatientService : Update profile
+PatientService -> PatientRepository : Fetch & validate ownership
+PatientRepository --> PatientService : Ownership confirmed
+PatientService -> PatientRepository : Update Patient details
+PatientRepository --> PatientService : Updated Data
+PatientService --> PatientController : Updated DTO
+PatientController --> REST_API : Updated DTO response
+REST_API --> Patient : Updated Profile (DTO)
+
+note right of PatientService
+**Security Controls:**
+- JWT Authentication & Role check
+- Patient ownership validation
+- Data validation & sanitization
+- DTO usage to limit sensitive data exposure
+end note
+
+@enduml

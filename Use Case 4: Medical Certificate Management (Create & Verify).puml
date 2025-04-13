@@ -1,0 +1,46 @@
+@startuml Medical Certificate Management
+
+title Medical Certificate Creation & Verification
+
+actor Doctor
+boundary REST_API
+control JwtAuthFilter
+control MedicalCertificateController
+control MedicalCertificateService
+database MedicalCertificateRepository
+database AppointmentRepository
+
+'Medical Certificate Creation'
+Doctor -> REST_API : POST /api/medical-certificates + JWT
+REST_API -> JwtAuthFilter : JWT & Doctor role validated
+JwtAuthFilter -> MedicalCertificateController : Authenticated
+MedicalCertificateController -> MedicalCertificateService : Create certificate
+MedicalCertificateService -> AppointmentRepository : Verify appointment
+AppointmentRepository --> MedicalCertificateService : Appointment valid
+MedicalCertificateService -> MedicalCertificateRepository : Save certificate (unverified)
+MedicalCertificateRepository --> MedicalCertificateService : Certificate saved
+MedicalCertificateService --> MedicalCertificateController : DTO
+MedicalCertificateController --> REST_API : Certificate DTO
+REST_API --> Doctor : Certificate DTO
+
+'Medical Certificate Verification'
+Doctor -> REST_API : PUT /api/medical-certificates/verify/{id} + JWT
+REST_API -> JwtAuthFilter : JWT & Doctor role validated
+JwtAuthFilter -> MedicalCertificateController : Authenticated
+MedicalCertificateController -> MedicalCertificateService : Verify certificate
+MedicalCertificateService -> MedicalCertificateRepository : Verify ownership
+MedicalCertificateRepository --> MedicalCertificateService : Ownership valid
+MedicalCertificateService -> MedicalCertificateRepository : Update (verified=true)
+MedicalCertificateRepository --> MedicalCertificateService : Certificate verified
+MedicalCertificateService --> MedicalCertificateController : DTO
+MedicalCertificateController --> REST_API : Verified DTO
+REST_API --> Doctor : Verified certificate DTO
+
+note right of MedicalCertificateService
+**Security Controls:**
+- JWT Authentication, RBAC checks
+- Ownership validation
+- Auditing verification events
+end note
+
+@enduml
