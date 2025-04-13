@@ -1,0 +1,78 @@
+@startuml
+title BitHealth Comprehensive Security Architecture
+
+actor Patient
+actor Doctor
+actor Administrator
+
+node "Client Application" {
+    [Frontend Application] <<HTTPS>>
+}
+
+cloud "Internet"
+
+rectangle "BitHealth Server" {
+
+    frame "Security Gateway Layer" {
+        [HTTPS Enforcement]
+        [CORS Policy Enforcement]
+        [Rate Limiting]
+    }
+
+    frame "Authentication & Authorization Layer" {
+        [JWT Authentication (Firebase)]
+        [Role-Based Access Control (RBAC)]
+    }
+
+    frame "API & Application Layer" {
+        [REST Controllers (DTO Enforcement)]
+        [Global Exception Handling (@ControllerAdvice)]
+        [Service Layer\n(Ownership Validation, Audit Logging, Input Validation)]
+    }
+
+    frame "Persistence & Data Layer" {
+        [Entity Auditing (JPA)]
+        [Sensitive Data Encryption]
+        database PostgreSQL_DB
+    }
+
+    frame "Configuration Management" {
+        [Secure Configuration (Environment Variables)]
+    }
+
+}
+
+cloud "Firebase Authentication Service"
+cloud "CI Security Practices" {
+    [Static Application Security Testing (SAST)]
+    [Dynamic Application Security Testing (DAST)]
+    [SonarCloud Analysis]
+    [Dependabot (Dependency Monitoring)]
+}
+
+' Data flow connections
+Patient --> "Client Application" : HTTPS Requests (JWT)
+Doctor --> "Client Application" : HTTPS Requests (JWT)
+Administrator --> "Client Application" : HTTPS Requests (JWT)
+
+"Client Application" --> Internet : Secure HTTPS Traffic
+Internet --> [HTTPS Enforcement] : Enforce HTTPS Protocol
+[HTTPS Enforcement] --> [CORS Policy Enforcement] : Verify Request Origin
+[CORS Policy Enforcement] --> [Rate Limiting] : Apply Request Throttling
+[Rate Limiting] --> [JWT Authentication (Firebase)] : Authenticate JWT Tokens
+
+[JWT Authentication (Firebase)] <--> "Firebase Authentication Service" : Verify Tokens
+
+[JWT Authentication (Firebase)] --> [Role-Based Access Control (RBAC)] : Check User Permissions
+[Role-Based Access Control (RBAC)] --> [REST Controllers (DTO Enforcement)]
+[REST Controllers (DTO Enforcement)] --> [Service Layer\n(Ownership Validation, Audit Logging, Input Validation)]
+[Service Layer\n(Ownership Validation, Audit Logging, Input Validation)] --> [Entity Auditing (JPA)]
+[Entity Auditing (JPA)] --> [Sensitive Data Encryption]
+[Sensitive Data Encryption] --> PostgreSQL_DB
+
+"Configuration Management" --> PostgreSQL_DB : Secure Credentials via Env Variables
+
+"CI Security Practices" --> [REST Controllers (DTO Enforcement)] : Continuous Vulnerability Detection & Reporting
+"CI Security Practices" --> [Service Layer\n(Ownership Validation, Audit Logging, Input Validation)] : Continuous Security Improvement Alerts
+
+@enduml
