@@ -1,5 +1,6 @@
 package com.bithealth.controllers;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,11 +13,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bithealth.dto.UserRegistrationDTO;
 import com.bithealth.entities.User;
 import com.bithealth.services.AuthService;
-import com.bithealth.utils.JwtUtil;
+import com.bithealth.utils.FirebaseTokenValidator;
+import com.google.firebase.auth.FirebaseAuthException;;
 
 @RestController
 @RequestMapping("/api/users")
 public class AuthController {
+    @Autowired
+    private FirebaseTokenValidator firebaseTokenValidator;
+
     private final AuthService authService;
 
     public AuthController(AuthService authService) {
@@ -35,14 +40,13 @@ public class AuthController {
     }
     //
     @GetMapping("/profile")
-    public ResponseEntity<User> getUserProfile(@RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<User> getUserProfile(@RequestHeader("Authorization") String authorizationHeader) throws FirebaseAuthException {
      
             // Extract the token from the Authorization header
             String token = authorizationHeader.substring(7); // Remove "Bearer " prefix
 
-            // Extract the user ID or email from the token
-        
-            String email = JwtUtil.getEmailFromToken(token);
+           // Extract and validate the user email from the token
+            String email = firebaseTokenValidator.validateTokenAndGetEmail(token);
             User user = authService.getUserProfile(email);
             return ResponseEntity.ok(user);
          }
