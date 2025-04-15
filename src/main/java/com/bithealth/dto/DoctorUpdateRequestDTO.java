@@ -4,6 +4,8 @@ import lombok.Data;
 
 @Data
 public class DoctorUpdateRequestDTO {
+    private String avatar;
+    private String name;
+    private String email;
     private String specialization;
-    private String bio;
 }

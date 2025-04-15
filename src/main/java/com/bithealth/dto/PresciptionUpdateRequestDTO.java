@@ -1,14 +1,12 @@
 package com.bithealth.dto;
 
-import lombok.Data;
-
 import java.time.LocalDate;
 import java.util.List;
 
+import lombok.Data;
+
 @Data
-public class PrescriptionCreateRequestDTO {
-    private Long appointmentId;
+public class PresciptionUpdateRequestDTO {
     private List<MedicineItem> medicineList;
-    private String invoiceNo;
     private LocalDate invoiceDate;
 }
