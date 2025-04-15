@@ -1,18 +1,28 @@
 package com.bithealth.entities;
 
-import jakarta.persistence.*;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-@Getter
-@Setter
+import com.bithealth.dto.MedicineItem;
+import com.bithealth.helpers.MedicineItemListConverter;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.Data;
+
 @Data
 @Entity
 @Table(name = "prescriptions")
@@ -26,12 +36,13 @@ public class Prescription {
     @JoinColumn(name = "appointment_id", referencedColumnName = "appointmentId")
     private Appointment appointment;
 
-    @Column(columnDefinition = "TEXT")
-    private String medicines; // JSONB/TEXT field
+    @Convert(converter = MedicineItemListConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "medicine_list", columnDefinition = "jsonb")
+    private List<MedicineItem> medicineList;
 
-    private String dosage;
-    private String duration;
-    private String notes;
-
+    private String invoiceNo;
+    private LocalDate invoiceDate;
+    private LocalDateTime lastVerified;
     private Boolean isVerified;
 }

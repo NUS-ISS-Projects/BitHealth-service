@@ -1,18 +1,20 @@
 package com.bithealth.controllers;
 
-import java.io.IOException;
-import org.springframework.core.io.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import com.bithealth.dto.PresciptionUpdateRequestDTO;
 import com.bithealth.dto.PrescriptionCreateRequestDTO;
 import com.bithealth.dto.PrescriptionVerificationDTO;
 import com.bithealth.entities.Prescription;
 import com.bithealth.services.PrescriptionService;
-import com.itextpdf.text.DocumentException;
 
 @RestController
 @RequestMapping("/api/prescriptions")
@@ -31,7 +33,13 @@ public class PrescriptionController {
         return ResponseEntity.ok(prescriptionService.getPrescriptionByAppointment(appointmentId));
     }
 
-    @PutMapping("/{prescriptionId}/verify")
+    @PutMapping("/{prescriptionId}")
+    public ResponseEntity<Prescription> updatePrescription(@PathVariable Long prescriptionId,@RequestBody PresciptionUpdateRequestDTO dto) {
+        Prescription prescription = prescriptionService.updatePrescription(prescriptionId, dto);
+        return ResponseEntity.ok(prescription);
+    }
+
+    @PutMapping("/verify/{prescriptionId}")
     public ResponseEntity<Prescription> verifyPrescription(
             @PathVariable Long prescriptionId,
             @RequestBody PrescriptionVerificationDTO dto) {
@@ -39,19 +47,4 @@ public class PrescriptionController {
         return ResponseEntity.ok(updatedPrescription);
     }
 
-    @GetMapping("/{prescriptionId}/download")
-    public ResponseEntity<Resource> downloadPrescription(
-            @PathVariable Long prescriptionId,
-            @RequestParam String format) throws IOException, DocumentException {
-        // Generate the file
-        Resource file = prescriptionService.generatePrescriptionFile(prescriptionId, format);
-
-        // Set headers
-        String contentType = "application/pdf".equals(format) ? "application/pdf"
-                : "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=prescription." + format)
-                .contentType(MediaType.parseMediaType(contentType))
-                .body(file);
-    }
 }
