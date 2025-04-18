@@ -1,4 +1,3 @@
-```yaml
 name: Build with Maven, Unit Tests, Code Coverage, and Static Analysis
 
 on:
