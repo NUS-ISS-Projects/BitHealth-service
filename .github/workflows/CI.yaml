@@ -1,4 +1,4 @@
-name: Build with Maven, Unit Tests, Code Coverage, and Static Analysis
+name: Build with Maven, Unit Tests, Code Coverage, and Static Analysis 
 
 on:
   push:
