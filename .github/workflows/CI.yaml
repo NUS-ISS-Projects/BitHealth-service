@@ -1,155 +1,204 @@
-name: CI Pipeline
+name: Build, Test, Analyze, and Deploy Docker Image
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main ] # Example: Trigger only on push to main
   pull_request:
-    branches: [ main ]
-
-env:
-  IMAGE_NAME: ghcr.io/nus-iss-projects/bithealth-service/bithealth-service
-  JAVA_VERSION: '17'
-  MAVEN_ARGS: "-B --errors --fail-at-end" # Common Maven args
+    branches: [ main ] # Example: Trigger on PRs targeting main
 
 jobs:
   build_and_test:
-    name: Build, Test & Package
+    name: Build, Test, and Package
     runs-on: ubuntu-latest
-    permissions:
-      contents: read # Read code
-      actions: read # Needed for downloading artifacts in dependent jobs? (Check docs)
     outputs:
-      jar_name: ${{ steps.set_jar_name.outputs.name }} # Output the JAR name
+      jacoco_report_path: ${{ steps.upload_jacoco.outputs.artifact-path }} # Pass artifact path if needed, otherwise just name
+      app_jar_path: ${{ steps.package.outputs.jar_path }} # Define JAR path output
+
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up JDK ${{ env.JAVA_VERSION }}
-        uses: actions/setup-java@v3
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17 (Temurin)
+        uses: actions/setup-java@v4
         with:
-          java-version: ${{ env.JAVA_VERSION }}
+          java-version: '17'
           distribution: 'temurin'
-          cache: maven
-      - name: Build, Test, Coverage, Package
-        run: mvn ${{ env.MAVEN_ARGS }} clean verify # Runs test, coverage, package
-      - name: Set Jar Name Output # Find the built JAR name dynamically
-        id: set_jar_name
-        run: echo "name=$(ls target/*.jar | grep -v 'original' | head -n 1)" >> $GITHUB_OUTPUT
-      - name: Upload JAR Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-jar
-          path: ${{ steps.set_jar_name.outputs.name }}
-      - name: Upload JaCoCo Report
+          cache: maven # Enable Maven dependency caching
+
+      - name: Build, Run Tests, and Generate Coverage
+        id: package # Give step an id to reference outputs
+        run: |
+          # Verify runs tests, packages, and generates JaCoCo report (if configured in pom.xml)
+          mvn -B verify --file pom.xml
+          # Find the generated JAR and set it as an output
+          JAR_FILE=$(find target/*.jar -maxdepth 1 -type f -not -name '*-sources.jar' -not -name '*-javadoc.jar')
+          echo "jar_path=${JAR_FILE}" >> $GITHUB_OUTPUT
+        # Ensure JaCoCo plugin is configured in pom.xml to run during 'verify' or 'package'
+
+      - name: Upload JaCoCo Report Artifact
+        id: upload_jacoco
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-report
-          path: target/site/jacoco/
+          path: target/site/jacoco/ # Default JaCoCo report location
 
-  sonar_analysis:
-    name: Static Analysis (SAST)
+      - name: Upload Application JAR Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: ${{ steps.package.outputs.jar_path }} # Use the path determined in the previous step
+
+  sonar:
+    name: Static Analysis (SonarCloud SAST)
     needs: build_and_test
     runs-on: ubuntu-latest
     permissions:
-      contents: read # For checkout
-      security-events: write # If using GitHub code scanning integration with Sonar
+      pull-requests: write # Needed if SonarCloud posts comments on PRs
+      contents: read
     steps:
-      - uses: actions/checkout@v3
-        with: { fetch-depth: 0 } # Full history for Sonar
-      - name: Set up JDK ${{ env.JAVA_VERSION }}
-        uses: actions/setup-java@v3
-        with: { java-version: ${{ env.JAVA_VERSION }}, distribution: 'temurin', cache: maven }
-      - name: Download JaCoCo report # Needed for coverage analysis
+      - name: Checkout Source (Full History for Sonar)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Sonar needs full history for accurate analysis
+
+      - name: Set up JDK 17 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          # No Maven cache needed here unless Sonar itself uses Maven heavily beyond the plugin execution
+
+      - name: Download JaCoCo Report
         uses: actions/download-artifact@v4
-        with: { name: jacoco-report, path: target/site/jacoco }
-      # Cache SonarCloud Packages (Optional if setup-java cache isn't sufficient)
+        with:
+          name: jacoco-report
+          path: target/site/jacoco/ # Download to the location Sonar expects
+
       - name: Cache SonarCloud Packages
-        uses: actions/cache@v3
-        with: { path: ~/.sonar/cache, key: ${{ runner.os }}-sonar, restore-keys: ${{ runner.os }}-sonar }
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
       - name: Run SonarCloud Analysis
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        # Run sonar:sonar directly. It assumes tests/compilation done by 'verify' in previous job
-        # May need to adjust pom.xml or args if it tries to re-run tests
-        run: mvn ${{ env.MAVEN_ARGS }} sonar:sonar -Dsonar.projectKey=NUS-ISS-Projects_BitHealth-service -Dsonar.java.coveragePlugin=jacoco -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required for PR decoration
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # Required for SonarCloud authentication
+        # Assumes pom.xml is configured with sonar properties (like projectKey, organization)
+        # and jacoco xml report path (sonar.coverage.jacoco.xmlReportPaths)
+        # If not configured in pom, add -Dsonar.projectKey=... etc. here
+        run: mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
 
-  dast_scan:
-    name: Dynamic Analysis (DAST)
+  dast:
+    name: Dynamic Analysis (OWASP ZAP DAST)
     needs: build_and_test
+    # Optional: Add condition e.g., run only on main branch pushes
+    # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    # Only run on push to main, or adjust as needed for PRs
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
-      contents: read # For checkout if needed, or just artifact download
-      actions: read # For artifact download
+      contents: read # To checkout or download artifact
+      # Add issues: write or security-events: write if ZAP needs to create issues/alerts
     steps:
-      - uses: actions/checkout@v3 # May not be needed if only using the JAR
-      - name: Download JAR Artifact
+      # No checkout needed if Dockerfile isn't used and app runs from JAR
+      # - name: Checkout Source
+      #   uses: actions/checkout@v4
+
+      - name: Download Application JAR
         uses: actions/download-artifact@v4
         with:
           name: app-jar
-          path: target/
-      - name: Start Application for DAST
+          path: target/ # Download JAR to target directory
+
+      - name: Set up JDK 17 (Temurin) # Needed to run the JAR
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Start Application in Background for DAST
         run: |
-          JAR_FILE=$(ls target/*.jar | head -n 1)
-          echo "Starting $JAR_FILE"
-          java -jar $JAR_FILE & # Run in background
-          # Health Check Loop (Example using curl, requires actuator/health)
+          java -jar target/*.jar --spring.profiles.active=ci & # Assuming 'ci' profile exists; run in background
+          APP_PID=$!
+          echo "APP_PID=$APP_PID" >> $GITHUB_ENV # Store process ID to kill later
           echo "Waiting for application to start..."
-          timeout 120 bash -c ' \
-            until curl -sf http://localhost:8080/actuator/health; do \
-              echo -n "."; \
-              sleep 5; \
-            done; \
-            echo " Application started!"' || (echo "Application failed to start" && exit 1)
+          # Wait for port 8080 to become available (adjust port if needed)
+          timeout 60 bash -c 'until curl -s http://localhost:8080 > /dev/null; do sleep 1; done' \
+          || (echo "Application failed to start"; exit 1)
+          echo "Application started."
+
       - name: Run OWASP ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.8.0 # Or newer
+        uses: zaproxy/action-baseline@v0.10.0 # Use latest version
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          target: 'http://localhost:8080'
-          fail_action: 'true'
-          allow_issue_writing: 'false'
-          docker_name: 'ghcr.io/zaproxy/zaproxy:stable' # Specify working image
-      - name: Upload DAST HTML Report
+          target: 'http://localhost:8080' # Target the locally running application
+          # fail_action: true # Set to true to fail workflow on ZAP alerts (optional)
+          # allow_issue_writing: false # Set to true to allow ZAP to create GitHub Issues
+          # docker_name: 'ghcr.io/zaproxy/zaproxy:stable' # Specify ZAP docker image
+
+      - name: Stop Application
+        if: always() # Ensure application is stopped even if ZAP fails
+        run: |
+          echo "Stopping application (PID: $APP_PID)..."
+          kill $APP_PID || echo "Process $APP_PID not found or already stopped."
+
+      - name: Upload DAST Report
+        if: always() # Upload report even if scan fails
         uses: actions/upload-artifact@v4
         with:
           name: zap-report
-          path: report_html.html # Default path from ZAP action
+          path: report_html.html # Default ZAP report name from action-baseline
 
-  build_and_push_docker:
+  docker:
     name: Build and Push Docker Image
     needs: build_and_test
     runs-on: ubuntu-latest
-    # Only run on push to main
+    # Only run on push to main, not on PRs (example condition)
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
-      contents: read # To read Dockerfile etc.
-      packages: write # To push to GHCR
-      actions: read # For artifact download
+      contents: read
+      packages: write # Permission to push to GitHub Container Registry (GHCR)
+
+    env:
+      IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/bithealth-service # Use owner dynamically
+      # Consider using github.repository instead of hardcoding service name if repo name matches
+
     steps:
-      - uses: actions/checkout@v3
-      - name: Set Image Tag
-        # Use SHA for better traceability
-        run: echo "IMAGE_TAG=sha-${GITHUB_SHA::7}" >> $GITHUB_ENV
-      - name: Download JAR Artifact
+      - name: Checkout Source # Needed for Dockerfile
+        uses: actions/checkout@v4
+
+      - name: Set build date as image tag
+        run: echo "IMAGE_TAG=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+
+      - name: Download Application JAR
         uses: actions/download-artifact@v4
         with:
           name: app-jar
-          path: target/
-      - name: Verify downloaded JAR
-        run: ls -l target/
-      - uses: docker/setup-buildx-action@v2
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
+          path: target/ # Download JAR to target directory for Docker build context
+
+      - name: Set up QEMU # For multi-platform builds
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry (GHCR)
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and Push Docker Image
-        uses: docker/build-push-action@v4
+
+      - name: Build and Push Multi-Architecture Docker Image
+        uses: docker/build-push-action@v5
         with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          push: true
+          context: . # Docker build context is the root of the repo
+          file: ./Dockerfile # Explicitly state Dockerfile location
+          platforms: linux/amd64,linux/arm64 # Specify target platforms
+          push: true # Push the image
           tags: |
             ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
             ${{ env.IMAGE_NAME }}:latest
+          # Optional: Add build args if needed by Dockerfile
+          # build-args: |
+          #   JAR_FILE=target/*.jar
