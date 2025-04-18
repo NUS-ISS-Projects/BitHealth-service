@@ -88,16 +88,16 @@ jobs:
       - name: Run OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.8.0
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           target: 'http://localhost:8080'
-          format: 'html'
-          output: 'zap_report.html'
-          failAction: 'error'
+          fail_action: 'true'
+          allow_issue_writing: 'false'
 
-      - name: Upload DAST Report
+      - name: Upload DAST HTML Report
         uses: actions/upload-artifact@v4
         with:
           name: zap-report
-          path: zap_report.html
+          path: report_html.html
 
   setup-build-deploy:
     name: Setup, Build, and Store Artifact
