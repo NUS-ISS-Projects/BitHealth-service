@@ -1,160 +1,155 @@
-name: Build with Maven, Unit Tests, Code Coverage, and Static Analysis
+name: CI Pipeline
 
 on:
   push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 env:
   IMAGE_NAME: ghcr.io/nus-iss-projects/bithealth-service/bithealth-service
+  JAVA_VERSION: '17'
+  MAVEN_ARGS: "-B --errors --fail-at-end" # Common Maven args
 
 jobs:
-  build:
-    name: Build, Unit Tests, and Code Coverage
+  build_and_test:
+    name: Build, Test & Package
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      pull-requests: write
-      repository-projects: write
-
+      contents: read # Read code
+      actions: read # Needed for downloading artifacts in dependent jobs? (Check docs)
+    outputs:
+      jar_name: ${{ steps.set_jar_name.outputs.name }} # Output the JAR name
     steps:
-      - name: Checkout Source
-        uses: actions/checkout@v3
-
-      - name: Set up JDK 17
+      - uses: actions/checkout@v3
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
+          java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
           cache: maven
-
-      - name: Build with Maven and Run Tests
-        run: mvn -B package --file pom.xml
-
+      - name: Build, Test, Coverage, Package
+        run: mvn ${{ env.MAVEN_ARGS }} clean verify # Runs test, coverage, package
+      - name: Set Jar Name Output # Find the built JAR name dynamically
+        id: set_jar_name
+        run: echo "name=$(ls target/*.jar | grep -v 'original' | head -n 1)" >> $GITHUB_OUTPUT
+      - name: Upload JAR Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: ${{ steps.set_jar_name.outputs.name }}
       - name: Upload JaCoCo Report
-        uses: actions/upload-artifact@v4.6.1
+        uses: actions/upload-artifact@v4
         with:
           name: jacoco-report
           path: target/site/jacoco/
 
-  sonar:
-    name: Static Analysis with SonarCloud (SAST)
+  sonar_analysis:
+    name: Static Analysis (SAST)
+    needs: build_and_test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # For checkout
+      security-events: write # If using GitHub code scanning integration with Sonar
     steps:
-      - name: Checkout Source (Full History)
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Set up JDK 17
+      - uses: actions/checkout@v3
+        with: { fetch-depth: 0 } # Full history for Sonar
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v3
-        with:
-          java-version: 17
-          distribution: 'zulu'
-
+        with: { java-version: ${{ env.JAVA_VERSION }}, distribution: 'temurin', cache: maven }
+      - name: Download JaCoCo report # Needed for coverage analysis
+        uses: actions/download-artifact@v4
+        with: { name: jacoco-report, path: target/site/jacoco }
+      # Cache SonarCloud Packages (Optional if setup-java cache isn't sufficient)
       - name: Cache SonarCloud Packages
         uses: actions/cache@v3
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-
-      - name: Cache Maven Dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-
+        with: { path: ~/.sonar/cache, key: ${{ runner.os }}-sonar, restore-keys: ${{ runner.os }}-sonar }
       - name: Run SonarCloud Analysis
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=NUS-ISS-Projects_BitHealth-service
+        # Run sonar:sonar directly. It assumes tests/compilation done by 'verify' in previous job
+        # May need to adjust pom.xml or args if it tries to re-run tests
+        run: mvn ${{ env.MAVEN_ARGS }} sonar:sonar -Dsonar.projectKey=NUS-ISS-Projects_BitHealth-service -Dsonar.java.coveragePlugin=jacoco -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
 
-  # Optional DAST Step
-  dast:
-    name: Dynamic Application Security Testing (DAST) with OWASP ZAP
+  dast_scan:
+    name: Dynamic Analysis (DAST)
+    needs: build_and_test
     runs-on: ubuntu-latest
-    needs: build
-    if: github.event_name == 'push'
+    # Only run on push to main, or adjust as needed for PRs
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read # For checkout if needed, or just artifact download
+      actions: read # For artifact download
     steps:
-      - name: Checkout Source
-        uses: actions/checkout@v3
-
-      - name: Start BitHealth for DAST
+      - uses: actions/checkout@v3 # May not be needed if only using the JAR
+      - name: Download JAR Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: app-jar
+          path: target/
+      - name: Start Application for DAST
         run: |
-          mvn spring-boot:run -Dspring-boot.run.profiles=ci &
-          sleep 30
-
+          JAR_FILE=$(ls target/*.jar | head -n 1)
+          echo "Starting $JAR_FILE"
+          java -jar $JAR_FILE & # Run in background
+          # Health Check Loop (Example using curl, requires actuator/health)
+          echo "Waiting for application to start..."
+          timeout 120 bash -c ' \
+            until curl -sf http://localhost:8080/actuator/health; do \
+              echo -n "."; \
+              sleep 5; \
+            done; \
+            echo " Application started!"' || (echo "Application failed to start" && exit 1)
       - name: Run OWASP ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.8.0
+        uses: zaproxy/action-baseline@v0.8.0 # Or newer
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           target: 'http://localhost:8080'
           fail_action: 'true'
           allow_issue_writing: 'false'
-          docker_name: 'ghcr.io/zaproxy/zaproxy:stable' 
-
+          docker_name: 'ghcr.io/zaproxy/zaproxy:stable' # Specify working image
       - name: Upload DAST HTML Report
         uses: actions/upload-artifact@v4
         with:
           name: zap-report
-          path: report_html.html
+          path: report_html.html # Default path from ZAP action
 
-  setup-build-deploy:
-    name: Setup, Build, and Store Artifact
+  build_and_push_docker:
+    name: Build and Push Docker Image
+    needs: build_and_test
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Source
-        uses: actions/checkout@v3
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: 17
-
-      - name: Maven Clean Install
-        run: mvn clean install --batch-mode --errors --fail-at-end
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4.6.1
-        with:
-          name: bithealth-app.jar
-          path: target/
-
-  build-docker-image:
-    name: Dockerize and Push to GitHub Container Registry
-    needs: setup-build-deploy
-    runs-on: ubuntu-latest
+    # Only run on push to main
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
-      contents: read
-      packages: write
+      contents: read # To read Dockerfile etc.
+      packages: write # To push to GHCR
+      actions: read # For artifact download
     steps:
-      - name: Checkout Source
-        uses: actions/checkout@v3
-
-      - name: Set build date as image tag
-        run: echo "IMAGE_TAG=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
-
-      - name: Retrieve Saved Artifact
-        uses: actions/download-artifact@v4.1.9
+      - uses: actions/checkout@v3
+      - name: Set Image Tag
+        # Use SHA for better traceability
+        run: echo "IMAGE_TAG=sha-${GITHUB_SHA::7}" >> $GITHUB_ENV
+      - name: Download JAR Artifact
+        uses: actions/download-artifact@v4
         with:
-          name: bithealth-app.jar
+          name: app-jar
           path: target/
-
-      - name: List Files in Artifact Directory
-        run: ls target/
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
+      - name: Verify downloaded JAR
+        run: ls -l target/
+      - uses: docker/setup-buildx-action@v2
       - name: Login to GitHub Container Registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
-
-      - name: Build and Push Multi-Architecture Docker Image
-        run: |
-          docker buildx build \
-            --platform=linux/amd64,linux/arm64 \
-            --tag ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
-            --tag ${{ env.IMAGE_NAME }}:latest \
-            --push .
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            ${{ env.IMAGE_NAME }}:latest
