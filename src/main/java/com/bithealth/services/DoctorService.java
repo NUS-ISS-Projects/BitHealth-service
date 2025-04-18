@@ -17,7 +17,7 @@ public class DoctorService {
     private DoctorRepository doctorRepository;
 
     public List<Doctor> getAllDoctors() {
-        return doctorRepository.findAll();
+        return doctorRepository.findAllWithUsers();
     }
 
     public Optional<Doctor> getDoctorProfile(Long doctorId) {
