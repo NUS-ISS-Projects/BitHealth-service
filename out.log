@@ -1,0 +1,2025 @@
+
+===== File: test/java/com/bithealth/BitHealthApplicationTests.java =====
+
+package com.bithealth;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class BitHealthApplicationTests {
+
+	//@Test
+	void contextLoads() {
+	}
+
+}
+
+========================
+
+
+
+===== File: main/java/com/bithealth/dto/DoctorUpdateRequestDTO.java =====
+
+package com.bithealth.dto;
+
+import lombok.Data;
+
+@Data
+public class DoctorUpdateRequestDTO {
+    private String avatar;
+    private String name;
+    private String email;
+    private String specialization;
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/dto/MedicineItem.java =====
+
+package com.bithealth.dto;
+
+import lombok.Data;
+
+@Data
+public class MedicineItem {
+    private String medicineName;
+    private String purpose;
+    private String dosage;
+    private String duration;
+    private String notes;
+}
+
+========================
+
+
+
+===== File: main/java/com/bithealth/dto/AppointmentResponseDTO.java =====
+
+package com.bithealth.dto;
+
+import lombok.Data;
+
+@Data
+public class AppointmentResponseDTO {
+    private Long appointmentId;
+    private String patientName; // Include only necessary patient details
+    private String doctorName; // Include only necessary doctor details
+    private String appointmentDate;
+    private String appointmentTime;
+    private String reasonForVisit;
+    private String status;
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/dto/AppointmentCreateRequestDTO.java =====
+
+package com.bithealth.dto;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Data;
+
+@Data
+public class AppointmentCreateRequestDTO {
+    private Long patientId;
+    private Long doctorId;
+    @JsonProperty("appointment_date") // Matches JSON key "appointment_date"
+    private LocalDate appointmentDate;
+
+    @JsonProperty("appointment_time") // Matches JSON key "appointment_time"
+    private LocalTime appointmentTime;
+
+    @JsonProperty("reason_for_visit") // Matches JSON key "reason_for_visit"
+    private String reasonForVisit;
+
+    @JsonProperty("comment") // Matches JSON key "comment"
+    private String comment;
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/dto/UserRegistrationDTO.java =====
+
+package com.bithealth.dto;
+import lombok.Data;
+
+@Data
+public class UserRegistrationDTO {
+    private String name;
+    private String email;
+    private String role;
+    private String firebaseUid;
+}
+
+========================
+
+
+
+===== File: main/java/com/bithealth/dto/AppointmentRescheduleDTO.java =====
+
+package com.bithealth.dto;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+
+@Data
+public class AppointmentRescheduleDTO {
+    @JsonProperty("appointment_date")
+    private LocalDate appointmentDate;
+    @JsonProperty("appointment_time")
+    private LocalTime appointmentTime;
+}
+
+========================
+
+
+
+===== File: main/java/com/bithealth/dto/PresciptionUpdateRequestDTO.java =====
+
+package com.bithealth.dto;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import lombok.Data;
+
+@Data
+public class PresciptionUpdateRequestDTO {
+    private List<MedicineItem> medicineList;
+    private LocalDate invoiceDate;
+}
+
+========================
+
+
+
+===== File: main/java/com/bithealth/dto/MedicalCertificateCreateRequestDTO.java =====
+
+package com.bithealth.dto;
+
+import lombok.Data;
+
+import java.time.LocalDate;
+
+@Data
+public class MedicalCertificateCreateRequestDTO {
+    private Long appointmentId;        // to link the certificate to an appointment
+    private String certificateNumber;  // "MC No."
+    private Integer noOfDays;
+    private LocalDate effectFrom;
+    private LocalDate issueDate;       // if you want them to input the actual issuance date
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/dto/AppointmentStatusUpdateDTO.java =====
+
+package com.bithealth.dto;
+
+import lombok.Data;
+
+@Data
+public class AppointmentStatusUpdateDTO {
+    private String status;
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/dto/DiagnosisUpdateDTO.java =====
+
+package com.bithealth.dto;
+
+import lombok.Data;
+
+@Data
+public class DiagnosisUpdateDTO {
+    private String diagnosis;
+    private String diagnosisAction;
+}
+
+========================
+
+
+
+===== File: main/java/com/bithealth/dto/PrescriptionCreateRequestDTO.java =====
+
+package com.bithealth.dto;
+
+import lombok.Data;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@Data
+public class PrescriptionCreateRequestDTO {
+    private Long appointmentId;
+    private List<MedicineItem> medicineList;
+    private String invoiceNo;
+    private LocalDate invoiceDate;
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/dto/PrescriptionVerificationDTO.java =====
+
+package com.bithealth.dto;
+
+import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import lombok.Data;
+
+@Data
+public class PrescriptionVerificationDTO {
+    @JsonFormat(pattern = "M/d/yyyy, h:mm:ss a")
+    private LocalDateTime lastVerified;
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/dto/MedicalCertificateUpdateRequestDTO.java =====
+
+package com.bithealth.dto;
+
+import lombok.Data;
+
+import java.time.LocalDate;
+
+@Data
+public class MedicalCertificateUpdateRequestDTO {
+    private Integer noOfDays;
+    private LocalDate effectFrom;
+    private LocalDate issueDate;
+}
+
+========================
+
+
+
+===== File: main/java/com/bithealth/dto/PatientUpdateRequestDTO.java =====
+
+package com.bithealth.dto;
+
+import lombok.Data;
+
+@Data
+public class PatientUpdateRequestDTO {
+    private String avatar;
+    private String contact_number;
+    private String dateOfBirth;
+    private String gender;
+
+    private String name;
+    private String email;
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/dto/MedicalCertificateVerificationDTO.java =====
+
+package com.bithealth.dto;
+
+import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import lombok.Data;
+
+@Data
+public class MedicalCertificateVerificationDTO {
+    @JsonFormat(pattern = "M/d/yyyy, h:mm:ss a")
+    private LocalDateTime lastVerified;
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/security/SecurityConfig.java =====
+
+package com.bithealth.security;
+
+import java.util.List;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+
+import com.bithealth.utils.FirebaseAuthenticationFilter;
+
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+    private final FirebaseAuthenticationFilter firebaseAuthenticationFilter;
+
+    public SecurityConfig(FirebaseAuthenticationFilter firebaseAuthenticationFilter) {
+        this.firebaseAuthenticationFilter = firebaseAuthenticationFilter;
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable)// Disable CSRF (if using Postman or stateless APIs)
+                .cors(cors -> cors.configurationSource(request -> {
+                    CorsConfiguration config = new CorsConfiguration();
+                    config.setAllowedOrigins(List.of("http://localhost:8081"));
+                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    config.setAllowedHeaders(List.of("Content-Type", "Authorization"));
+                    config.setAllowCredentials(true);
+                    return config;
+                })) // Enable CORS integration with Spring Security
+            .authorizeHttpRequests(auth -> auth
+                    //We need to update his part if possible
+                .requestMatchers("/api/**").permitAll() // Public endpoints
+                .anyRequest().authenticated()) // All other endpoints require authentication
+            .addFilterBefore(firebaseAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/security/CorsConfig.java =====
+
+package com.bithealth.security;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+@Configuration
+public class CorsConfig {
+
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                        .allowedOrigins("http://localhost:8081") // Allow requests from this origin
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Allowed HTTP methods
+                        .allowedHeaders("Content-Type", "Authorization") // Allowed headers
+                        .allowCredentials(true); // Allow cookies or authorization headers
+            }
+        };
+    }
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/controllers/MedicalCertificateController.java =====
+
+package com.bithealth.controllers;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.bithealth.dto.MedicalCertificateCreateRequestDTO;
+import com.bithealth.dto.MedicalCertificateUpdateRequestDTO;
+import com.bithealth.dto.MedicalCertificateVerificationDTO;
+import com.bithealth.entities.MedicalCertificate;
+import com.bithealth.services.MedicalCertificateService;
+
+@RestController
+@RequestMapping("/api/medical-certificates")
+public class MedicalCertificateController {
+    @Autowired
+    private MedicalCertificateService medicalCertificateService;
+
+    @PostMapping
+    public ResponseEntity<MedicalCertificate> createMedicalCertificate(
+            @RequestBody MedicalCertificateCreateRequestDTO dto) {
+        MedicalCertificate certificate = medicalCertificateService.createMedicalCertificate(dto);
+        return ResponseEntity.status(201).body(certificate);
+    }
+
+    @GetMapping("/appointment/{appointmentId}")
+    public ResponseEntity<MedicalCertificate> getMedicalCertificateByAppointment(@PathVariable Long appointmentId) {
+        return ResponseEntity.ok(medicalCertificateService.getMedicalCertificateByAppointment(appointmentId));
+    }
+
+    @PutMapping("/{certificateId}")
+    public ResponseEntity<MedicalCertificate> updateMedicalCertificate(
+            @PathVariable Long certificateId,
+            @RequestBody MedicalCertificateUpdateRequestDTO dto) {
+        MedicalCertificate updatedCertificate = medicalCertificateService.updateMedicalCertificate(certificateId, dto);
+        return ResponseEntity.ok(updatedCertificate);
+    }
+
+    @PutMapping("/verify/{certificateId}")
+    public ResponseEntity<MedicalCertificate> verifyMedicalCertificate(
+            @PathVariable Long certificateId,
+            @RequestBody MedicalCertificateVerificationDTO dto) {
+        MedicalCertificate updatedCertificate = medicalCertificateService.verifyMedicalCertificate(certificateId, dto);
+        return ResponseEntity.ok(updatedCertificate);
+    }
+}
+
+========================
+
+
+
+===== File: main/java/com/bithealth/controllers/PatientController.java =====
+
+package com.bithealth.controllers;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.bithealth.dto.PatientUpdateRequestDTO;
+import com.bithealth.entities.Patient;
+import com.bithealth.services.PatientService;
+
+@RestController
+@RequestMapping("/api/patients")
+public class PatientController {
+
+    @Autowired
+    private PatientService patientService;
+
+    // Get Patient Profile
+    @GetMapping("/{patientId}")
+    public ResponseEntity<Patient> getPatientProfile(@PathVariable Long patientId) {
+        return patientService.getPatientProfile(patientId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // Update Patient Profile
+    @PutMapping("/{patientId}")
+    public ResponseEntity<Patient> updatePatientProfile(
+            @PathVariable Long patientId,
+            @RequestBody PatientUpdateRequestDTO request) {
+        return ResponseEntity.ok(patientService.updatePatientProfile(patientId, request));
+    }
+
+    // Get profile using JWT token 
+    // Get Patient Profile
+    @GetMapping("/profile/{userId}")
+    public ResponseEntity<Patient> getPatientProfileWithUser(@PathVariable Long userId) {
+        return patientService.getPatientProfileUserId(userId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/controllers/DoctorController.java =====
+
+package com.bithealth.controllers;
+
+import com.bithealth.entities.Doctor;
+import com.bithealth.services.DoctorService;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import com.bithealth.dto.DoctorUpdateRequestDTO;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/doctors")
+public class DoctorController {
+
+    @Autowired
+    private DoctorService doctorService;
+
+    /**
+     * Get List of Doctors
+     * - GET /api/doctors
+     */
+    @GetMapping
+    public ResponseEntity<List<Doctor>> getAllDoctors() {
+        return ResponseEntity.ok(doctorService.getAllDoctors());
+    }
+
+    /**
+     * Get a Doctor’s Profile
+     * - GET /api/doctors/{doctorId}
+     */
+    @GetMapping("/{doctorId}")
+    public ResponseEntity<Doctor> getDoctorProfile(@PathVariable Long doctorId) {
+        return doctorService.getDoctorProfile(doctorId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    /**
+     * Update Doctor’s Profile
+     * - PUT /api/doctors/{doctorId}
+     */
+    @PutMapping("/{doctorId}")
+    public ResponseEntity<Doctor> updateDoctorProfile(
+            @PathVariable Long doctorId,
+            @RequestBody DoctorUpdateRequestDTO request) {
+        return ResponseEntity.ok(doctorService.updateDoctorProfile(doctorId, request));
+    }
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/controllers/PrescriptionController.java =====
+
+package com.bithealth.controllers;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.bithealth.dto.PresciptionUpdateRequestDTO;
+import com.bithealth.dto.PrescriptionCreateRequestDTO;
+import com.bithealth.dto.PrescriptionVerificationDTO;
+import com.bithealth.entities.Prescription;
+import com.bithealth.services.PrescriptionService;
+
+@RestController
+@RequestMapping("/api/prescriptions")
+public class PrescriptionController {
+    @Autowired
+    private PrescriptionService prescriptionService;
+
+    @PostMapping
+    public ResponseEntity<Prescription> createPrescription(@RequestBody PrescriptionCreateRequestDTO dto) {
+        Prescription prescription = prescriptionService.createPrescription(dto);
+        return ResponseEntity.status(201).body(prescription);
+    }
+
+    @GetMapping("/appointment/{appointmentId}")
+    public ResponseEntity<Prescription> getPrescriptionByAppointment(@PathVariable Long appointmentId) {
+        return ResponseEntity.ok(prescriptionService.getPrescriptionByAppointment(appointmentId));
+    }
+
+    @PutMapping("/{prescriptionId}")
+    public ResponseEntity<Prescription> updatePrescription(@PathVariable Long prescriptionId,@RequestBody PresciptionUpdateRequestDTO dto) {
+        Prescription prescription = prescriptionService.updatePrescription(prescriptionId, dto);
+        return ResponseEntity.ok(prescription);
+    }
+
+    @PutMapping("/verify/{prescriptionId}")
+    public ResponseEntity<Prescription> verifyPrescription(
+            @PathVariable Long prescriptionId,
+            @RequestBody PrescriptionVerificationDTO dto) {
+        Prescription updatedPrescription = prescriptionService.verifyPrescription(prescriptionId, dto);
+        return ResponseEntity.ok(updatedPrescription);
+    }
+
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/controllers/AuthController.java =====
+
+package com.bithealth.controllers;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.bithealth.dto.UserRegistrationDTO;
+import com.bithealth.entities.User;
+import com.bithealth.services.AuthService;
+import com.bithealth.utils.FirebaseTokenValidator;
+import com.google.firebase.auth.FirebaseAuthException;;
+
+@RestController
+@RequestMapping("/api/users")
+public class AuthController {
+    @Autowired
+    private FirebaseTokenValidator firebaseTokenValidator;
+
+    private final AuthService authService;
+
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<User> register(@RequestBody UserRegistrationDTO dto) {
+        return ResponseEntity.ok(authService.registerUser(dto));
+    }
+
+    @GetMapping("/{email}")
+    public ResponseEntity<User> getProfile(@PathVariable String email) {
+        User user = authService.getUserProfile(email);
+        return ResponseEntity.ok(user); // 200 OK
+    }
+    //
+    @GetMapping("/profile")
+    public ResponseEntity<User> getUserProfile(@RequestHeader("Authorization") String authorizationHeader) throws FirebaseAuthException {
+     
+            // Extract the token from the Authorization header
+            String token = authorizationHeader.substring(7); // Remove "Bearer " prefix
+
+           // Extract and validate the user email from the token
+            String email = firebaseTokenValidator.validateTokenAndGetEmail(token);
+            User user = authService.getUserProfile(email);
+            return ResponseEntity.ok(user);
+         }
+}
+
+========================
+
+
+
+===== File: main/java/com/bithealth/controllers/AppointmentController.java =====
+
+package com.bithealth.controllers;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.bithealth.dto.AppointmentCreateRequestDTO;
+import com.bithealth.dto.AppointmentRescheduleDTO;
+import com.bithealth.dto.AppointmentStatusUpdateDTO;
+import com.bithealth.dto.DiagnosisUpdateDTO;
+import com.bithealth.entities.Appointment;
+import com.bithealth.entities.Diagnosis;
+import com.bithealth.entities.User;
+import com.bithealth.services.AppointmentService;
+import com.bithealth.services.DiagnosisService;
+
+@RestController
+@RequestMapping("/api/appointments")
+public class AppointmentController {
+
+    @Autowired
+    private AppointmentService appointmentService;
+
+    @Autowired
+    private DiagnosisService diagnosisService;
+
+    // Create an Appointment
+    @PostMapping
+    @PreAuthorize("hasRole('PATIENT')")
+    public ResponseEntity<Appointment> createAppointment( @RequestHeader("Authorization") String authorizationHeader,
+                                                          @RequestBody AppointmentCreateRequestDTO request) {
+        Appointment appointment = appointmentService.createAppointment(request);
+        return ResponseEntity.status(201).body(appointment);
+    }
+
+    // Get Available Appointments for a Doctor
+    @GetMapping("/doctor")
+    @PreAuthorize("hasRole('DOCTOR')")
+    public ResponseEntity<List<Appointment>> getAvailableAppointmentsForDoctor() {
+        User authUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long doctorId = authUser.getDoctor().getDoctorId();
+        return ResponseEntity.ok(appointmentService.getAvailableAppointmentsForDoctor(doctorId));
+    }
+
+    // Get Appointments for a Patient
+    @GetMapping("/patient")
+    @PreAuthorize("hasRole('PATIENT')")
+    public ResponseEntity<List<Appointment>> getAppointmentsForPatient() {
+        User authUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long patientId = authUser.getPatient().getPatientId();
+        return ResponseEntity.ok(appointmentService.getAppointmentsForPatient(patientId));
+    }
+
+    // Get Appointment by ID
+    @GetMapping("/{appointmentId}")
+    public ResponseEntity<Appointment> getAppointmentById(@PathVariable Long appointmentId) {
+        Appointment appointment = appointmentService.getAppointmentById(appointmentId);
+        return ResponseEntity.ok(appointment);
+    }
+
+    @DeleteMapping("/{appointmentId}")
+    public ResponseEntity<Void> deleteAppointment(@PathVariable Long appointmentId) {
+        appointmentService.deleteAppointment(appointmentId);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Update Appointment Date and Time (Reschedule)
+    @PutMapping("/reschedule/{appointmentId}")
+    @PreAuthorize("hasRole('PATIENT')")
+    public ResponseEntity<Appointment> updateAppointmentDateTime(
+            @PathVariable Long appointmentId,
+            @RequestBody AppointmentRescheduleDTO dto) {
+        Appointment updatedAppointment = appointmentService.updateAppointmentDateTime(appointmentId,
+                dto.getAppointmentDate(), dto.getAppointmentTime());
+        return ResponseEntity.ok(updatedAppointment);
+    }
+
+    // Update Appointment Status
+    @PutMapping("/updateStatus/{appointmentId}")
+    @PreAuthorize("hasRole('DOCTOR')")
+    public ResponseEntity<Appointment> updateAppointmentStatus(
+            @PathVariable Long appointmentId,
+            @RequestBody AppointmentStatusUpdateDTO dto) {
+        Appointment updatedAppointment = appointmentService.updateAppointmentStatus(appointmentId, dto.getStatus());
+        return ResponseEntity.ok(updatedAppointment);
+    }
+
+    @PutMapping("/diagnosis/{appointmentId}")
+    @PreAuthorize("hasRole('DOCTOR')")
+    public ResponseEntity<Diagnosis> updateDiagnosis(
+            @PathVariable Long appointmentId,
+            @RequestBody DiagnosisUpdateDTO dto) {
+        Diagnosis diagnosis = diagnosisService.addOrUpdateDiagnosis(appointmentId, dto);
+        return ResponseEntity.ok(diagnosis);
+    }
+    @GetMapping("/diagnosis/{appointmentId}")
+    public ResponseEntity<Diagnosis> getDiagnosisByAppointment(@PathVariable Long appointmentId) {
+        Diagnosis diagnosis = diagnosisService.getDiagnosisByAppointment(appointmentId);
+        return ResponseEntity.ok(diagnosis);
+    }
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/BitHealthApplication.java =====
+
+package com.bithealth;
+
+import java.io.IOException;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+
+@SpringBootApplication
+@EnableJpaAuditing
+public class BitHealthApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(BitHealthApplication.class, args);
+	}
+}
+
+========================
+
+
+
+===== File: main/java/com/bithealth/entities/MedicalCertificate.java =====
+
+package com.bithealth.entities;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.Data;
+
+@Data
+@Entity
+@Table(name = "medical_certificates")
+@EntityListeners(AuditingEntityListener.class)
+public class MedicalCertificate {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "certificate_id")
+    private Long certificateId;
+
+    @OneToOne
+    @JoinColumn(name = "appointment_id", referencedColumnName = "appointmentId")
+    private Appointment appointment;
+
+    private String certificateNumber;
+
+    private LocalDate issueDate;
+    private Integer noOfDays;
+    private LocalDate effectFrom;
+    private LocalDateTime lastVerified;
+    private Boolean isVerified;
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/entities/Doctor.java =====
+
+package com.bithealth.entities;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Entity
+@Table(name = "doctors")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
+public class Doctor {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long doctorId;
+
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "userId", unique = true)
+    private User user;
+
+    private String avatar;
+    private String specialization;
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/entities/Appointment.java =====
+
+package com.bithealth.entities;
+
+import jakarta.persistence.*;
+import lombok.Data;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+@Data
+@Entity
+@Table(name = "appointments")
+@EntityListeners(AuditingEntityListener.class)
+public class Appointment {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long appointmentId;
+
+    @ManyToOne
+    @JoinColumn(name = "patient_id", referencedColumnName = "patientId")
+    private Patient patient;
+
+    @ManyToOne
+    @JoinColumn(name = "doctor_id", referencedColumnName = "doctorId")
+    private Doctor doctor;
+
+    private LocalDate appointmentDate;
+    private LocalTime appointmentTime;
+    private String reasonForVisit;
+    private String comment;
+
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
+    public enum Status {
+        PENDING, CONFIRMED, CANCELLED, REJECTED, COMPLETED
+    }
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/entities/Prescription.java =====
+
+package com.bithealth.entities;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import com.bithealth.dto.MedicineItem;
+import com.bithealth.helpers.MedicineItemListConverter;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.Data;
+
+@Data
+@Entity
+@Table(name = "prescriptions")
+@EntityListeners(AuditingEntityListener.class)
+public class Prescription {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long prescriptionId;
+
+    @OneToOne
+    @JoinColumn(name = "appointment_id", referencedColumnName = "appointmentId")
+    private Appointment appointment;
+
+    @Convert(converter = MedicineItemListConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "medicine_list", columnDefinition = "jsonb")
+    private List<MedicineItem> medicineList;
+
+    private String invoiceNo;
+    private LocalDate invoiceDate;
+    private LocalDateTime lastVerified;
+    private Boolean isVerified;
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/entities/User.java =====
+
+package com.bithealth.entities;
+
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Entity
+@Table(name = "users")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
+public class User {
+    public enum Role {
+        PATIENT, DOCTOR
+    }
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long userId;
+
+    private String name;
+
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    private String firebaseUid;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    // One-to-One relationship with Doctor
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
+    @JsonIgnore
+    private Doctor doctor;
+
+    // One-to-One relationship with Patient
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
+    @JsonIgnore
+    private Patient patient;
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/entities/Patient.java =====
+
+package com.bithealth.entities;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Entity
+@Table(name = "patients")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
+public class Patient {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long patientId;
+
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "userId", unique = true)
+    private User user;
+
+    private String avatar;
+    private String contactNumber;
+    private String dateOfBirth;
+    private String gender;
+
+}
+
+========================
+
+
+
+===== File: main/java/com/bithealth/entities/Diagnosis.java =====
+
+package com.bithealth.entities;
+
+import jakarta.persistence.*;
+import lombok.Data;
+
+@Entity
+@Table(name = "diagnosis")
+@Data
+public class Diagnosis {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long diagnosisId;
+
+    @ManyToOne
+    @JoinColumn(name = "appointment_id", referencedColumnName = "appointmentId")
+    private Appointment appointment;
+
+    private String diagnosis;
+    private String diagnosisAction;
+}
+
+========================
+
+
+
+===== File: main/java/com/bithealth/services/DiagnosisService.java =====
+
+package com.bithealth.services;
+
+import com.bithealth.dto.DiagnosisUpdateDTO;
+import com.bithealth.entities.Appointment;
+import com.bithealth.entities.Diagnosis;
+import com.bithealth.repositories.AppointmentRepository;
+import com.bithealth.repositories.DiagnosisRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class DiagnosisService {
+    @Autowired
+    private DiagnosisRepository diagnosisRepository;
+
+    @Autowired
+    private AppointmentRepository appointmentRepository;
+
+    public Diagnosis addOrUpdateDiagnosis(Long appointmentId, DiagnosisUpdateDTO dto) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Appointment not found: " + appointmentId));
+
+        Diagnosis diagnosis = diagnosisRepository.findByAppointment_AppointmentId(appointmentId)
+                .orElseGet(Diagnosis::new);
+
+
+        diagnosis.setAppointment(appointment);
+        diagnosis.setDiagnosis(dto.getDiagnosis());
+        diagnosis.setDiagnosisAction(dto.getDiagnosisAction());
+
+        return diagnosisRepository.save(diagnosis);
+    }
+    public Diagnosis getDiagnosisByAppointment(Long appointmentId) {
+        return diagnosisRepository.findByAppointment_AppointmentId(appointmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Diagnosis not found for appointment with ID: " + appointmentId));
+    }
+}
+
+========================
+
+
+
+===== File: main/java/com/bithealth/services/PrescriptionService.java =====
+
+package com.bithealth.services;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.bithealth.dto.PresciptionUpdateRequestDTO;
+import com.bithealth.dto.PrescriptionCreateRequestDTO;
+import com.bithealth.dto.PrescriptionVerificationDTO;
+import com.bithealth.entities.Appointment;
+import com.bithealth.entities.Prescription;
+import com.bithealth.repositories.AppointmentRepository;
+import com.bithealth.repositories.PrescriptionRepository;
+
+@Service
+public class PrescriptionService {
+    @Autowired
+    private PrescriptionRepository prescriptionRepository;
+    @Autowired
+    private AppointmentRepository appointmentRepository;
+
+    public Prescription createPrescription(PrescriptionCreateRequestDTO dto) {
+        // Fetch the associated Appointment
+        Appointment appointment = appointmentRepository.findById(dto.getAppointmentId())
+                .orElseThrow(
+                        () -> new IllegalArgumentException("Appointment not found with ID: " + dto.getAppointmentId()));
+
+        // Create the Prescription
+        Prescription prescription = new Prescription();
+        prescription.setAppointment(appointment);
+        prescription.setMedicineList(dto.getMedicineList());
+        prescription.setInvoiceNo(dto.getInvoiceNo());
+        prescription.setInvoiceDate(dto.getInvoiceDate());
+        //TODO: Do a check here before they are allow to set value as True
+        prescription.setIsVerified(false);
+
+        return prescriptionRepository.save(prescription);
+    }
+
+    public Prescription updatePrescription(Long prescriptionId, PresciptionUpdateRequestDTO dto) {
+        Prescription existingPrescription = prescriptionRepository.findById(prescriptionId)
+                .orElseThrow(() -> new IllegalArgumentException("Prescription not found with ID: " + prescriptionId));
+        existingPrescription.setMedicineList(dto.getMedicineList());
+        existingPrescription.setInvoiceDate(dto.getInvoiceDate());
+        existingPrescription.setIsVerified(false);
+        return prescriptionRepository.save(existingPrescription);
+    }
+
+    public Prescription getPrescriptionByAppointment(Long appointmentId) {
+        return prescriptionRepository.findByAppointment_AppointmentId(appointmentId);
+    }
+
+    public Prescription verifyPrescription(Long prescriptionId, PrescriptionVerificationDTO dto) {
+        Prescription prescription = prescriptionRepository.findById(prescriptionId)
+                .orElseThrow(() -> new IllegalArgumentException("Prescription not found with ID: " + prescriptionId));
+        //TODO: Do a check here before they are allow to set value as True
+        prescription.setLastVerified(dto.getLastVerified());
+        prescription.setIsVerified(true);
+        return prescriptionRepository.save(prescription);
+    }
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/services/MedicalCertificateService.java =====
+
+package com.bithealth.services;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.bithealth.dto.MedicalCertificateCreateRequestDTO;
+import com.bithealth.dto.MedicalCertificateUpdateRequestDTO;
+import com.bithealth.dto.MedicalCertificateVerificationDTO;
+import com.bithealth.entities.Appointment;
+import com.bithealth.entities.MedicalCertificate;
+import com.bithealth.repositories.AppointmentRepository;
+import com.bithealth.repositories.MedicalCertificateRepository;
+
+@Service
+public class MedicalCertificateService {
+    @Autowired
+    private MedicalCertificateRepository medicalCertificateRepository;
+    @Autowired
+    private AppointmentRepository appointmentRepository;
+
+    public MedicalCertificate createMedicalCertificate(MedicalCertificateCreateRequestDTO dto) {
+        // Fetch the associated Appointment
+        Appointment appointment = appointmentRepository.findById(dto.getAppointmentId())
+                .orElseThrow(
+                        () -> new IllegalArgumentException("Appointment not found with ID: " + dto.getAppointmentId()));
+
+        // Create the MedicalCertificate
+        MedicalCertificate certificate = new MedicalCertificate();
+        certificate.setAppointment(appointment);
+        certificate.setCertificateNumber(dto.getCertificateNumber());
+        certificate.setNoOfDays(dto.getNoOfDays());
+        certificate.setEffectFrom(dto.getEffectFrom());
+        certificate.setIssueDate(dto.getIssueDate());
+        certificate.setIsVerified(false);
+
+        return medicalCertificateRepository.save(certificate);
+    }
+
+    public MedicalCertificate updateMedicalCertificate(Long certificateId, MedicalCertificateUpdateRequestDTO dto) {
+        MedicalCertificate certificate = medicalCertificateRepository.findById(certificateId)
+                .orElseThrow(() -> new IllegalArgumentException("Medical Certificate not found with ID: " + certificateId));
+        certificate.setNoOfDays(dto.getNoOfDays());
+        certificate.setEffectFrom(dto.getEffectFrom());
+        certificate.setIssueDate(dto.getIssueDate());
+        certificate.setIsVerified(false);
+        return medicalCertificateRepository.save(certificate);
+    }
+
+    public MedicalCertificate getMedicalCertificateByAppointment(Long appointmentId) {
+        return medicalCertificateRepository.findByAppointment_AppointmentId(appointmentId);
+    }
+
+    public MedicalCertificate verifyMedicalCertificate(Long certificateId, MedicalCertificateVerificationDTO dto) {
+        MedicalCertificate certificate = medicalCertificateRepository.findById(certificateId)
+                .orElseThrow(
+                        () -> new IllegalArgumentException("Medical certificate not found with ID: " + certificateId));
+        //TODO: Do a check here before they are allow to set value as True
+        certificate.setLastVerified(dto.getLastVerified());
+        certificate.setIsVerified(true);
+        return medicalCertificateRepository.save(certificate);
+    }
+}
+
+========================
+
+
+
+===== File: main/java/com/bithealth/services/PatientService.java =====
+
+package com.bithealth.services;
+
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.bithealth.dto.PatientUpdateRequestDTO;
+import com.bithealth.entities.Patient;
+import com.bithealth.entities.User;
+import com.bithealth.repositories.PatientRepository;
+
+@Service
+public class PatientService {
+
+    @Autowired
+    private PatientRepository patientRepository;
+
+    // Get Patient Profile
+    public Optional<Patient> getPatientProfile(Long patientId) {
+        return patientRepository.findById(patientId);
+    }
+
+    // Update Patient Profile
+    public Patient updatePatientProfile(Long patientId, PatientUpdateRequestDTO request) {
+        Patient patient = patientRepository.findById(patientId).orElseThrow();
+
+        User user = patient.getUser();
+        if (user != null) {
+            if (request.getName() != null) {
+                user.setName(request.getName());
+            }
+            if (request.getEmail() != null) {
+                user.setEmail(request.getEmail());
+            }
+        }
+
+        if (request.getAvatar() != null) {
+            patient.setAvatar(request.getAvatar());
+        }
+        if (request.getContact_number() != null) {
+            patient.setContactNumber(request.getContact_number());
+        }
+        if (request.getDateOfBirth() != null) {
+            patient.setDateOfBirth(request.getDateOfBirth());
+        }
+        if (request.getGender() != null) {
+            patient.setGender(request.getGender());
+        }
+        return patientRepository.save(patient);
+    }
+
+    public Optional<Patient> getPatientProfileUserId(Long userId) {
+        // TODO Auto-generated method stub
+        return patientRepository.findByUserId(userId);    
+    }
+
+    
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/services/DoctorService.java =====
+
+package com.bithealth.services;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.bithealth.dto.DoctorUpdateRequestDTO;
+import com.bithealth.entities.Doctor;
+import com.bithealth.entities.User;
+import com.bithealth.repositories.DoctorRepository;
+
+@Service
+public class DoctorService {
+    @Autowired
+    private DoctorRepository doctorRepository;
+
+    public List<Doctor> getAllDoctors() {
+        return doctorRepository.findAll();
+    }
+
+    public Optional<Doctor> getDoctorProfile(Long doctorId) {
+        return doctorRepository.findById(doctorId);
+    }
+
+    // Update a doctor's profile
+    public Doctor updateDoctorProfile(Long doctorId, DoctorUpdateRequestDTO request) {
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new IllegalArgumentException("Doctor not found with ID: " + doctorId));
+
+        User user = doctor.getUser();
+        if (user != null) {
+            if (request.getName() != null) {
+                user.setName(request.getName());
+            }
+            if (request.getEmail() != null) {
+                user.setEmail(request.getEmail());
+            }
+        }
+
+        if (request.getAvatar() != null) {
+            doctor.setAvatar(request.getAvatar());
+        }
+
+        if (request.getSpecialization() != null) {
+            doctor.setSpecialization(request.getSpecialization());
+        }
+
+        return doctorRepository.save(doctor);
+    }
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/services/AppointmentService.java =====
+
+package com.bithealth.services;
+
+import com.bithealth.dto.AppointmentCreateRequestDTO;
+import com.bithealth.entities.Appointment;
+import com.bithealth.entities.Doctor;
+import com.bithealth.entities.Patient;
+import com.bithealth.repositories.AppointmentRepository;
+import com.bithealth.repositories.DoctorRepository;
+import com.bithealth.repositories.PatientRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
+
+@Service
+public class AppointmentService {
+
+    @Autowired
+    private AppointmentRepository appointmentRepository;
+
+    @Autowired
+    private PatientRepository patientRepository;
+
+    @Autowired
+    private DoctorRepository doctorRepository;
+
+    public Appointment createAppointment(AppointmentCreateRequestDTO request) {
+        // Fetch the Patient and Doctor objects by their IDs
+        Patient patient = patientRepository.findById(request.getPatientId())
+                .orElseThrow(
+                        () -> new IllegalArgumentException("Patient not found with ID: " + request.getPatientId()));
+
+        // Fetch the Doctor by their ID
+        Doctor doctor = doctorRepository.findById(request.getDoctorId())
+                .orElseThrow(() -> new IllegalArgumentException("Doctor not found with ID: " + request.getDoctorId()));
+
+        // Create the Appointment entity
+        Appointment appointment = new Appointment();
+        appointment.setPatient(patient);
+        appointment.setDoctor(doctor);
+
+        // Parse date and time strings into LocalDate and LocalTime
+        appointment.setAppointmentDate(request.getAppointmentDate());
+        appointment.setAppointmentTime(request.getAppointmentTime());
+        appointment.setReasonForVisit(request.getReasonForVisit());
+        appointment.setComment(request.getComment());
+        appointment.setStatus(Appointment.Status.PENDING); // Default status
+
+        return appointmentRepository.save(appointment);
+    }
+
+    public List<Appointment> getAvailableAppointmentsForDoctor(Long doctorId) {
+        return appointmentRepository.findByDoctor_DoctorId(doctorId);
+    }
+
+    public List<Appointment> getAppointmentsForPatient(Long patientId) {
+        return appointmentRepository.findByPatient_PatientId(patientId);
+    }
+
+    public Appointment getAppointmentById(Long appointmentId) {
+        return appointmentRepository.findAppointmentByAppointmentId(appointmentId);
+    }
+    public void deleteAppointment(Long appointmentId) {
+        Appointment appointment = appointmentRepository.findAppointmentByAppointmentId(appointmentId);
+        appointmentRepository.delete(appointment);
+    }
+
+    // Update the status of an appointment
+    public Appointment updateAppointmentStatus(Long appointmentId, String status) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Appointment not found with ID: " + appointmentId));
+        // Set status
+        appointment.setStatus(Appointment.Status.valueOf(status.toUpperCase()));
+        return appointmentRepository.save(appointment);
+    }
+    public Appointment updateAppointmentDateTime(Long appointmentId, LocalDate newDate, LocalTime newTime) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Appointment not found with ID: " + appointmentId));
+        appointment.setAppointmentDate(newDate);
+        appointment.setAppointmentTime(newTime);
+        appointment.setStatus(Appointment.Status.PENDING);
+        return appointmentRepository.save(appointment);
+    }
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/services/AuthService.java =====
+
+package com.bithealth.services;
+
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import com.bithealth.dto.UserRegistrationDTO;
+import com.bithealth.entities.Doctor;
+import com.bithealth.entities.Patient;
+import com.bithealth.entities.User;
+import com.bithealth.entities.User.Role;
+import com.bithealth.repositories.DoctorRepository;
+import com.bithealth.repositories.PatientRepository;
+import com.bithealth.repositories.UserRepository;
+
+@Service
+public class AuthService {
+    private final UserRepository userRepository;
+    private final PatientRepository patientRepository;
+    private final DoctorRepository doctorRepository;
+
+    public AuthService(UserRepository userRepository, DoctorRepository doctorRepository,
+            PatientRepository patientRepository) {
+        this.userRepository = userRepository;
+        this.doctorRepository = doctorRepository;
+        this.patientRepository = patientRepository;
+    }
+
+    public User registerUser(UserRegistrationDTO dto) {
+        User user = new User();
+        user.setName(dto.getName());
+        user.setEmail(dto.getEmail());
+        user.setRole(Role.valueOf(dto.getRole().toUpperCase()));
+        user.setFirebaseUid(dto.getFirebaseUid());
+        // Save the user first
+        User savedUser = userRepository.save(user);
+
+        // If the user is a doctor, create a corresponding Doctor entry
+        if (Role.DOCTOR.equals(savedUser.getRole())) {
+            Doctor doctor = new Doctor();
+            doctor.setUser(savedUser);
+            doctor.setSpecialization("General Practitioner"); // Default specialization
+
+            // Save the doctor entry
+            doctorRepository.save(doctor);
+        }
+
+        // If the user is a patient, create a corresponding Patient entry
+        if (Role.PATIENT.equals(savedUser.getRole())) {
+            Patient patient = new Patient();
+            patient.setUser(savedUser);
+            patient.setDateOfBirth("1990-01-01"); // Default date of birth
+            patient.setGender("Unknown"); // Default gender
+
+            // Save the patient entry
+            patientRepository.save(patient);
+        }
+        return savedUser;
+    }
+
+    public User getUserProfile(String userEmail) {
+        Optional<User> userOptional = userRepository.findByEmail(userEmail);
+        if (userOptional.isEmpty()) {
+            throw new IllegalArgumentException("User not found with email: " + userEmail);
+        }
+        return userOptional.get();
+    }
+
+
+}
+
+========================
+
+
+
+===== File: main/java/com/bithealth/utils/JwtUtil.java =====
+
+package com.bithealth.utils;
+
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.exceptions.JWTDecodeException;
+
+public class JwtUtil {
+
+    public static String getEmailFromToken(String token) {
+        try {
+            // Decode the token
+            return JWT.decode(token).getClaim("email").asString();
+        } catch (JWTDecodeException e) {
+            throw new RuntimeException("Invalid token");
+        }
+    }
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/utils/FirebaseInitializer.java =====
+
+package com.bithealth.utils;
+
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import org.springframework.context.annotation.Configuration;
+
+import javax.annotation.PostConstruct;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Base64;
+
+@Configuration
+public class FirebaseInitializer {
+
+    @PostConstruct
+    public void initializeFirebase() throws IOException {
+        String b64 = System.getenv("FIREBASE_SA_B64");
+        InputStream credsStream;
+        if (b64 != null && !b64.isEmpty()) {
+            byte[] jsonBytes = Base64.getDecoder().decode(b64);
+            credsStream = new ByteArrayInputStream(jsonBytes);
+        } else {
+            credsStream = getClass().getClassLoader()
+                    .getResourceAsStream("bithealth.json");
+        }
+        if (credsStream == null) {
+            throw new IllegalStateException("No Firebase creds provided");
+        }
+
+        FirebaseOptions options = FirebaseOptions.builder()
+                .setCredentials(GoogleCredentials.fromStream(credsStream))
+                .build();
+
+        if (FirebaseApp.getApps().isEmpty()) {
+            FirebaseApp.initializeApp(options);
+        }
+    }
+}
+
+========================
+
+
+
+===== File: main/java/com/bithealth/utils/FirebaseAuthenticationFilter.java =====
+
+package com.bithealth.utils;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.bithealth.entities.User;
+import com.bithealth.repositories.UserRepository;
+import com.google.firebase.auth.FirebaseToken;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+@Component
+public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
+
+    private final JwtValidator jwtValidator;
+    private final UserRepository userRepository;
+
+    public FirebaseAuthenticationFilter(JwtValidator jwtValidator, UserRepository userRepository) {
+        this.jwtValidator = jwtValidator;
+        this.userRepository = userRepository;
+    }
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+        String authorizationHeader = request.getHeader("Authorization");
+
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String idToken = authorizationHeader.substring(7); // Remove "Bearer " prefix
+
+            try {
+                // Validate the token
+                FirebaseToken decodedToken = jwtValidator.validateToken(idToken);
+
+                // Extract the UID from the token
+                String firebaseUid = decodedToken.getUid();
+
+                // Look up the local user using the firebaseUid
+                User localUser = userRepository.findByFirebaseUid(firebaseUid)
+                        .orElseThrow(() -> new RuntimeException("User not found with UID: " + firebaseUid));
+
+                // Create authorities based on the user's role
+                List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+                if (localUser.getRole() == User.Role.DOCTOR) {
+                    authorities.add(new SimpleGrantedAuthority("ROLE_DOCTOR"));
+                } else if (localUser.getRole() == User.Role.PATIENT) {
+                    authorities.add(new SimpleGrantedAuthority("ROLE_PATIENT"));
+                }
+
+                // Set authentication in the SecurityContext
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        localUser,
+                        null,
+                        authorities
+                );
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } catch (Exception e) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Unauthorized: Invalid token");
+                return;
+            }
+        }
+
+        filterChain.doFilter(request, response);
+    }
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/utils/FirebaseTokenValidator.java =====
+
+package com.bithealth.utils;
+
+import org.springframework.stereotype.Component;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseToken;
+
+@Component
+public class FirebaseTokenValidator {
+
+    public String validateTokenAndGetEmail(String token) {
+        try {
+            // Verify the Firebase token
+            FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
+
+            // Extract user details from the token
+            String email = decodedToken.getEmail();
+
+            // Create an Authentication object
+            return email;
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid token", e);
+        }
+    }
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/utils/JwtValidator.java =====
+
+package com.bithealth.utils;
+
+import org.springframework.stereotype.Component;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseToken;
+
+@Component
+public class JwtValidator {
+
+    public FirebaseToken validateToken(String idToken) throws Exception {
+        try {
+            // Verify the Firebase ID token
+            return FirebaseAuth.getInstance().verifyIdToken(idToken);
+        } catch (Exception e) {
+            throw new Exception("Invalid or expired token");
+        }
+    }
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/repositories/PatientRepository.java =====
+
+package com.bithealth.repositories;
+
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+import com.bithealth.entities.Patient;
+
+public interface PatientRepository extends JpaRepository<Patient, Long> {
+
+    Optional<Patient> findById(Long patientId);
+    @Query("SELECT p FROM Patient p WHERE p.user.userId = :userId")
+    Optional<Patient> findByUserId(Long userId);
+}
+
+========================
+
+
+
+===== File: main/java/com/bithealth/repositories/DiagnosisRepository.java =====
+
+package com.bithealth.repositories;
+
+import com.bithealth.entities.Diagnosis;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface DiagnosisRepository extends JpaRepository<Diagnosis, Long> {
+    Optional<Diagnosis> findByAppointment_AppointmentId(Long appointmentId);
+}
+
+========================
+
+
+
+===== File: main/java/com/bithealth/repositories/DoctorRepository.java =====
+
+package com.bithealth.repositories;
+
+import com.bithealth.entities.Doctor;
+import com.bithealth.entities.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.Optional;
+
+public interface DoctorRepository extends JpaRepository<Doctor, Long> {
+    Optional<Doctor> findByUser(User user);
+
+    Optional<Doctor> findById(Long doctorId);
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/repositories/PrescriptionRepository.java =====
+
+package com.bithealth.repositories;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.bithealth.entities.Prescription;
+
+public interface PrescriptionRepository extends JpaRepository<Prescription, Long> {
+    Prescription findByAppointment_AppointmentId(Long appointmentId);
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/repositories/AppointmentRepository.java =====
+
+package com.bithealth.repositories;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import com.bithealth.entities.Appointment;
+
+import java.util.List;
+
+public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
+    List<Appointment> findByDoctor_DoctorId(Long doctorId);
+
+    List<Appointment> findByPatient_PatientId(Long patientId);
+
+    Appointment findAppointmentByAppointmentId(Long appointmentId);
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/repositories/MedicalCertificateRepository.java =====
+
+package com.bithealth.repositories;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import com.bithealth.entities.MedicalCertificate;
+
+public interface MedicalCertificateRepository extends JpaRepository<MedicalCertificate, Long> {
+    MedicalCertificate findByAppointment_AppointmentId(Long appointmentId);
+}
+========================
+
+
+
+===== File: main/java/com/bithealth/repositories/UserRepository.java =====
+
+package com.bithealth.repositories;
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.bithealth.entities.User;
+
+public interface  UserRepository extends JpaRepository<User, Long>{
+    Optional<User> findByEmail(String email);
+    Optional<User> findByFirebaseUid(String firebaseUid);
+}
+
+========================
+
+
+
+===== File: main/java/com/bithealth/helpers/MedicineItemListConverter.java =====
+
+package com.bithealth.helpers;
+
+import com.bithealth.dto.MedicineItem;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+
+import java.io.IOException;
+import java.util.List;
+
+@Converter(autoApply = false)
+public class MedicineItemListConverter implements AttributeConverter<List<MedicineItem>, String> {
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Override
+    public String convertToDatabaseColumn(List<MedicineItem> attribute) {
+        if(attribute == null) {
+            return null;
+        }
+        try {
+            return objectMapper.writeValueAsString(attribute);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("Error converting list of medicine items to JSON", e);
+        }
+    }
+
+    @Override
+    public List<MedicineItem> convertToEntityAttribute(String dbData) {
+        if(dbData == null || dbData.isEmpty()) {
+            return null;
+        }
+        try {
+            return objectMapper.readValue(dbData, new TypeReference<List<MedicineItem>>() {});
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Error converting JSON to list of medicine items", e);
+        }
+    }
+}
+
+========================
+
+
+
+===== File: main/resources/application.properties =====
+
+spring.application.name=BitHealth
+
+## Server Config
+server.port=8080
+spring.datasource.url=${SPRING_DATASOURCE_URL}
+spring.datasource.username=${SPRING_DATASOURCE_USERNAME}
+spring.datasource.password=${SPRING_DATASOURCE_PASSWORD}
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# Optional: tweak the pool size
+spring.datasource.hikari.maximum-pool-size=5
+
+## Hibernate JPA Config
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.show-sql=true
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.properties.hibernate.jdbc.prepare_sql=false
+spring.jpa.properties.hibernate.jdbc.batch.statements=false
+spring.jpa.properties.hibernate.jdbc.batch_size=0
+spring.jpa.properties.hibernate.jdbc.fetch_size=0
+spring.jpa.properties.hibernate.cache.use_second_level_cache=false
+spring.jpa.properties.hibernate.cache.use_query_cache=false
+spring.jpa.properties.hibernate.generate_statistics=false
+spring.datasource.hikari.data-source-properties.preparedStatementCacheQueries=0
+spring.datasource.hikari.data-source-properties.preparedStatementCacheSizeMiB=0
+spring.datasource.hikari.data-source-properties.cachePrepStmts=false
+#jackson
+spring.jackson.date-format=yyyy-MM-dd
+spring.jackson.time-zone=UTC
+spring.jackson.serialization.write-dates-as-timestamps=false
+========================
+
+
