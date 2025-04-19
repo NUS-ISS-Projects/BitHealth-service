@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: "maven" # Specifies the ecosystem for Maven dependencies
+    directory: "/" # Location of your pom.xml (use "/" if it's in the root)
+    schedule:
+      interval: "weekly" # How often to check for updates (daily, weekly, or monthly)
+    # Optional: Add commit-message prefix, labels, reviewers, etc.
+    # open-pull-requests-limit: 10 # Example: Limit open PRs
+
+  # Optional: Add another entry to update GitHub Actions used in your workflows
+  - package-ecosystem: "github-actions"
+    directory: "/" # Location of your workflow files (usually root)
+    schedule:
+      interval: "weekly"
