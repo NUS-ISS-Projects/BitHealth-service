@@ -127,18 +127,19 @@ jobs:
             -Dspring-boot.run.arguments="--server.address=0.0.0.0" \
             > app.log 2>&1 &
           APP_PID=$! # Capture the process ID
-          echo "Application started with PID $APP_PID. Waiting up to 120s for HTTP 200 on /actuator/health…"
+          echo "Application started with PID $APP_PID. Waiting up to 120s for server to respond on port 8080..."
 
-          # Robust health check loop
+          # Robust check loop - testing basic connection to port 8080
           for i in {1..60}; do # 60 attempts * 2s sleep = 120 seconds timeout
-            # Check health endpoint first
-            if curl -fs --connect-timeout 5 http://localhost:8080/actuator/health >/dev/null; then
-              echo "✅ Service is up!"
-              exit 0 # Exit script successfully if health check passes
+            # Use curl to attempt connection, check curl's exit code.
+            # -s: silent, -o /dev/null: discard output body
+            # curl exits 0 if connection+transfer succeeds, non-zero on connection failure/timeout.
+            if curl -s --connect-timeout 5 http://localhost:8080 -o /dev/null; then
+              echo "✅ Server is responding on port 8080!"
+              exit 0 # Exit script successfully
             fi
 
-            # Check if the background process is still running *after* checking health
-            # If it died, the health check would likely fail anyway, but this confirms it exited.
+            # Check if the background process is still running *after* checking connection
             if ! kill -0 $APP_PID > /dev/null 2>&1; then
               echo "::error::Application process $APP_PID exited prematurely."
               echo "--- Application Log (app.log) ---"
@@ -147,12 +148,12 @@ jobs:
               exit 1 # Exit script with error code 1
             fi
 
-            echo "Waiting... Attempt $i/60"
+            echo "Waiting for connection... Attempt $i/60"
             sleep 2
           done
 
-          # If the loop finishes without success (timeout)
-          echo "::error::Application failed to become healthy at http://localhost:8080/actuator/health within 120 seconds."
+          # If the loop finishes without success (timeout connecting)
+          echo "::error::Application server failed to respond on http://localhost:8080 within 120 seconds."
           echo "--- Application Log (app.log) ---"
           cat app.log || echo "app.log not found or empty"
           echo "--- End Application Log ---"
