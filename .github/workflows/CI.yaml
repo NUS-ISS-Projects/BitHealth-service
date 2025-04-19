@@ -116,7 +116,7 @@ jobs:
           SPRING_DATASOURCE_PASSWORD: ci_password # Match the service env password
           # Firebase credentials from GitHub Secrets
           FIREBASE_SA_B64: ${{ secrets.FIREBASE_SA_B64_CI }}
-        # --- Updated run script starts here ---
+        # --- Run script using basic connection check ---
         run: |
           echo "Waiting for PostgreSQL service..."
           sleep 15 # Existing wait time
@@ -160,7 +160,7 @@ jobs:
           # Attempt to clean up the potentially hung process
           kill $APP_PID || echo "Failed to kill unresponsive process $APP_PID"
           exit 1 # Exit script with error code 1
-        # --- Updated run script ends here ---
+        # --- End run script ---
 
       - name: Run OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.8.0
@@ -168,13 +168,15 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           target: 'http://localhost:8080' # Target the app running on the runner host
           docker_name: 'ghcr.io/zaproxy/zaproxy:stable'
+          # --- ADDED THIS LINE ---
+          allow_issue_writing: false # Prevent action from trying to create GitHub issues
 
       - name: Upload DAST HTML Report
         uses: actions/upload-artifact@v4
         if: always() # Upload report even if ZAP fails
         with:
           name: zap-report
-          path: report_html.html
+          path: report_html.html # Default ZAP HTML report name
 
   setup-build-deploy:
     name: Setup, Build, and Store Artifact
