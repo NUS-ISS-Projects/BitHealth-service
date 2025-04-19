@@ -147,7 +147,8 @@ jobs:
           exit 1
 
       - name: Run OWASP ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.11.0
+        # --- Roll back action version ---
+        uses: zaproxy/action-baseline@v0.8.0 # Back to v0.8.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           target: 'http://localhost:8080'
