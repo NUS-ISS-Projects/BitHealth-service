@@ -1,5 +1,3 @@
-# Updated Workflow File
-
 name: Build with Maven, Unit Tests, Code Coverage, and Static Analysis
 
 on:
@@ -32,7 +30,7 @@ jobs:
         run: mvn -B package --file pom.xml
 
       - name: Upload JaCoCo Report
-        uses: actions/upload-artifact@v4.6.1 # Using a specific version is good practice
+        uses: actions/upload-artifact@v4.6.1
         with:
           name: jacoco-report
           path: target/site/jacoco/
@@ -49,8 +47,8 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          java-version: 17
-          distribution: 'zulu' # Note: Using 'zulu' here, while 'temurin' elsewhere. Consistent distribution is often preferred unless there's a specific reason.
+          java-version: '17'
+          distribution: 'temurin'
 
       - name: Cache SonarCloud Packages
         uses: actions/cache@v3
@@ -70,7 +68,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=NUS-ISS-Projects_BitHealth-service
+        run: |
+          mvn -B verify \
+            org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=NUS-ISS-Projects_BitHealth-service
 
   dast:
     name: Dynamic Application Security Testing (DAST) with OWASP ZAP
@@ -78,19 +79,15 @@ jobs:
     needs: build
     if: github.event_name == 'push'
 
-    # Define the PostgreSQL service container
     services:
       postgres:
-        image: postgres:15 # Or your desired PostgreSQL version
+        image: postgres:15
         env:
-          # Set credentials for the temporary CI database
           POSTGRES_USER: ci_user
-          POSTGRES_PASSWORD: ci_password # Use a secret if needed for the DB password
+          POSTGRES_PASSWORD: ci_password
           POSTGRES_DB: ci_db
         ports:
-          # Map port 5432 in the container to port 5432 on the runner host
           - 5432:5432
-        # Options to wait for the database service to be healthy
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -106,84 +103,66 @@ jobs:
 
       - name: Start BitHealth for DAST and Wait for Health Check
         id: start_app
-        # Set environment variables needed by the application
-        # These will be picked up by application.properties placeholders
         env:
-          SPRING_PROFILES_ACTIVE: ci # Keep activating CI profile if it has other non-DB settings
-          # Database credentials pointing to the service container on localhost
+          SPRING_PROFILES_ACTIVE: ci
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/ci_db
           SPRING_DATASOURCE_USERNAME: ci_user
-          SPRING_DATASOURCE_PASSWORD: ci_password # Match the service env password
-          # Firebase credentials from GitHub Secrets
+          SPRING_DATASOURCE_PASSWORD: ci_password
           FIREBASE_SA_B64: ${{ secrets.FIREBASE_SA_B64_CI }}
-        # --- Run script using basic connection check ---
         run: |
           echo "Waiting for PostgreSQL service..."
-          sleep 15 # Existing wait time
+          sleep 15
 
           echo "Starting application with DB service..."
           nohup mvn spring-boot:run \
             -Dspring-boot.run.profiles=ci \
             -Dspring-boot.run.arguments="--server.address=0.0.0.0" \
             > app.log 2>&1 &
-          APP_PID=$! # Capture the process ID
+          APP_PID=$!
           echo "Application started with PID $APP_PID. Waiting up to 120s for server to respond on port 8080..."
 
-          # Robust check loop - testing basic connection to port 8080
-          for i in {1..60}; do # 60 attempts * 2s sleep = 120 seconds timeout
-            # Use curl to attempt connection, check curl's exit code.
-            # -s: silent, -o /dev/null: discard output body
-            # curl exits 0 if connection+transfer succeeds, non-zero on connection failure/timeout.
+          for i in {1..60}; do
             if curl -s --connect-timeout 5 http://localhost:8080 -o /dev/null; then
               echo "✅ Server is responding on port 8080!"
-              exit 0 # Exit script successfully
+              exit 0
             fi
-
-            # Check if the background process is still running *after* checking connection
             if ! kill -0 $APP_PID > /dev/null 2>&1; then
               echo "::error::Application process $APP_PID exited prematurely."
               echo "--- Application Log (app.log) ---"
               cat app.log || echo "app.log not found or empty"
               echo "--- End Application Log ---"
-              exit 1 # Exit script with error code 1
+              exit 1
             fi
-
             echo "Waiting for connection... Attempt $i/60"
             sleep 2
           done
 
-          # If the loop finishes without success (timeout connecting)
           echo "::error::Application server failed to respond on http://localhost:8080 within 120 seconds."
           echo "--- Application Log (app.log) ---"
           cat app.log || echo "app.log not found or empty"
           echo "--- End Application Log ---"
-          # Attempt to clean up the potentially hung process
           kill $APP_PID || echo "Failed to kill unresponsive process $APP_PID"
-          exit 1 # Exit script with error code 1
-        # --- End run script ---
+          exit 1
 
       - name: Run OWASP ZAP Baseline Scan
-        # Using updated version
         uses: zaproxy/action-baseline@v0.11.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           target: 'http://localhost:8080'
           docker_name: 'ghcr.io/zaproxy/zaproxy:stable'
           allow_issue_writing: false
+          artifact_name: 'zapsarifreport.sarif'
 
       - name: Upload DAST HTML Report
         uses: actions/upload-artifact@v4
-        if: always() # Upload report even if ZAP fails
+        if: always()
         with:
-          # Keep the desired name for the HTML report artifact
           name: zap-baseline-report-html
-          path: report_html.html # Default ZAP HTML report name
+          path: report_html.html
 
   setup-build-deploy:
     name: Setup, Build, and Store Artifact
     runs-on: ubuntu-latest
-    # It might make sense for this job to depend on 'build' and maybe 'sonar'
-    # needs: [build, sonar] # Uncomment if you want this to run only after build and sonar succeed
     steps:
       - name: Checkout Source
         uses: actions/checkout@v3
@@ -192,10 +171,9 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: 17
-          cache: maven # Added Maven cache here too for consistency
+          java-version: '17'
+          cache: maven
 
-      # Consider if 'mvn package' from 'build' job is sufficient, or if 'install' is truly needed
       - name: Maven Clean Install
         run: mvn clean install --batch-mode --errors --fail-at-end
 
@@ -203,14 +181,10 @@ jobs:
         uses: actions/upload-artifact@v4.6.1
         with:
           name: bithealth-app.jar
-          # The default path for the jar created by 'mvn install' (or 'package')
           path: target/*.jar
-          # Optional: prevent errors if no JAR found (e.g., build failure)
-          # if-no-files-found: error # Default is 'warn'
 
   build-docker-image:
     name: Dockerize and Push to GitHub Container Registry
-    # This job depends on the artifact created in setup-build-deploy
     needs: setup-build-deploy
     runs-on: ubuntu-latest
     permissions:
@@ -218,41 +192,38 @@ jobs:
       packages: write
     steps:
       - name: Checkout Source
-        # Technically might not be needed if Dockerfile only needs the JAR,
-        # but usually kept for context or if Dockerfile references other source files.
         uses: actions/checkout@v3
 
       - name: Set build date as image tag
         run: echo "IMAGE_TAG=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
 
       - name: Retrieve Saved Artifact
-        uses: actions/download-artifact@v4.1.9 # Using a specific version
+        uses: actions/download-artifact@v4.1.9
         with:
           name: bithealth-app.jar
-          path: target/ # Download the artifact into the target directory
+          path: target/
 
       - name: List Files in Artifact Directory
-        run: ls -l target/ # Verify the JAR file is present
+        run: ls -l target/
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3 # Updated to v3 (recommend checking for latest stable)
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3 # Updated to v3 (recommend checking for latest stable)
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and Push Multi-Architecture Docker Image
-        uses: docker/build-push-action@v5 # Updated to v5 (recommend checking for latest stable)
+        uses: docker/build-push-action@v5
         with:
-          context: . # Build context is the current directory
-          # file: ./Dockerfile # Explicitly specify Dockerfile if not in root
-          platforms: linux/amd64,linux/arm64 # Specify target platforms
-          push: true # Push the image to the registry
-          tags: | # Define image tags
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags:
             ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
             ${{ env.IMAGE_NAME }}:latest
-          cache-from: type=gha # Enable GitHub Actions cache for Docker layer caching
+          cache-from: type=gha
           cache-to: type=gha,mode=max
