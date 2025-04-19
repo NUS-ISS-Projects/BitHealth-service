@@ -1,4 +1,6 @@
-name: Build with Maven, Unit Tests, Code Coverage, and Static Analysis 
+# Updated Workflow File
+
+name: Build with Maven, Unit Tests, Code Coverage, and Static Analysis
 
 on:
   push:
@@ -30,7 +32,7 @@ jobs:
         run: mvn -B package --file pom.xml
 
       - name: Upload JaCoCo Report
-        uses: actions/upload-artifact@v4.6.1
+        uses: actions/upload-artifact@v4.6.1 # Using a specific version is good practice
         with:
           name: jacoco-report
           path: target/site/jacoco/
@@ -48,7 +50,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: 17
-          distribution: 'zulu'
+          distribution: 'zulu' # Note: Using 'zulu' here, while 'temurin' elsewhere. Consistent distribution is often preferred unless there's a specific reason.
 
       - name: Cache SonarCloud Packages
         uses: actions/cache@v3
@@ -73,47 +75,76 @@ jobs:
   dast:
     name: Dynamic Application Security Testing (DAST) with OWASP ZAP
     runs-on: ubuntu-latest
-    needs: build
+    needs: build # This job depends on the build job succeeding
     if: github.event_name == 'push'
     steps:
       - name: Checkout Source
         uses: actions/checkout@v3
 
       - name: Permit ZAP to write reports
+        # Granting broad permissions might be necessary but consider if more specific permissions are possible
         run: sudo chmod -R a+rwX $GITHUB_WORKSPACE
 
-      - name: Start BitHealth for DAST
+      # UPDATED STEP: Robust application start and health check
+      - name: Start BitHealth for DAST and Wait for Health Check
+        id: start_app
         run: |
+          echo "Starting application..."
           nohup mvn spring-boot:run \
             -Dspring-boot.run.profiles=ci \
             -Dspring-boot.run.arguments="--server.address=0.0.0.0" \
             > app.log 2>&1 &
-          echo "Waiting up to 60s for HTTP 200 on /actuator/health…"
-          for i in {1..30}; do
-            if curl -fs http://localhost:8080/actuator/health >/dev/null; then
+          APP_PID=$! # Capture the process ID
+          echo "Application started with PID $APP_PID. Waiting up to 120s for HTTP 200 on /actuator/health…"
+          for i in {1..60}; do # Increased timeout to 120s (60 attempts * 2s sleep)
+            # Check health endpoint
+            if curl -fs --connect-timeout 5 http://localhost:8080/actuator/health >/dev/null; then
               echo "✅ Service is up!"
-              break
+              exit 0 # Exit script successfully if health check passes
             fi
+            # Check if the background process is still running
+            if ! kill -0 $APP_PID > /dev/null 2>&1; then
+              echo "::error::Application process $APP_PID exited prematurely during health check."
+              echo "--- Application Log (app.log) ---"
+              cat app.log || echo "app.log not found or empty"
+              echo "--- End Application Log ---"
+              exit 1 # Exit script with error if process died
+            fi
+            echo "Waiting... Attempt $i/60"
             sleep 2
           done
 
+          # If the loop finishes without success
+          echo "::error::Application failed to become healthy within 120 seconds."
+          echo "--- Application Log (app.log) ---"
+          cat app.log || echo "app.log not found or empty"
+          echo "--- End Application Log ---"
+          # Attempt to clean up the process if it's still running but unhealthy
+          kill $APP_PID || echo "Failed to kill unresponsive process $APP_PID"
+          exit 1 # Exit script with error if timeout reached
+
+      # UPDATED STEP: Removed invalid config_file parameter
       - name: Run OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.8.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           target: 'http://localhost:8080'
           docker_name: 'ghcr.io/zaproxy/zaproxy:stable'
-          config_file: '' 
+          # config_file: '' # <<< REMOVED THIS INVALID PARAMETER
 
+      # Consider adding 'if: success()' or 'if: always()' depending on whether you want this on failure
       - name: Upload DAST HTML Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4 # Using v4 is generally recommended
+        if: always() # Upload report even if the ZAP scan step fails (optional, adjust as needed)
         with:
           name: zap-report
-          path: report_html.html
+          path: report_html.html # ZAP action generates report_html.html by default
 
   setup-build-deploy:
     name: Setup, Build, and Store Artifact
     runs-on: ubuntu-latest
+    # It might make sense for this job to depend on 'build' and maybe 'sonar'
+    # needs: [build, sonar] # Uncomment if you want this to run only after build and sonar succeed
     steps:
       - name: Checkout Source
         uses: actions/checkout@v3
@@ -123,7 +154,9 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 17
+          cache: maven # Added Maven cache here too for consistency
 
+      # Consider if 'mvn package' from 'build' job is sufficient, or if 'install' is truly needed
       - name: Maven Clean Install
         run: mvn clean install --batch-mode --errors --fail-at-end
 
@@ -131,10 +164,14 @@ jobs:
         uses: actions/upload-artifact@v4.6.1
         with:
           name: bithealth-app.jar
-          path: target/
+          # The default path for the jar created by 'mvn install' (or 'package')
+          path: target/*.jar
+          # Optional: prevent errors if no JAR found (e.g., build failure)
+          # if-no-files-found: error # Default is 'warn'
 
   build-docker-image:
     name: Dockerize and Push to GitHub Container Registry
+    # This job depends on the artifact created in setup-build-deploy
     needs: setup-build-deploy
     runs-on: ubuntu-latest
     permissions:
@@ -142,30 +179,41 @@ jobs:
       packages: write
     steps:
       - name: Checkout Source
+        # Technically might not be needed if Dockerfile only needs the JAR,
+        # but usually kept for context or if Dockerfile references other source files.
         uses: actions/checkout@v3
 
       - name: Set build date as image tag
         run: echo "IMAGE_TAG=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
 
       - name: Retrieve Saved Artifact
-        uses: actions/download-artifact@v4.1.9
+        uses: actions/download-artifact@v4.1.9 # Using a specific version
         with:
           name: bithealth-app.jar
-          path: target/
+          path: target/ # Download the artifact into the target directory
 
       - name: List Files in Artifact Directory
-        run: ls target/
+        run: ls -l target/ # Verify the JAR file is present
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v2 # Consider using latest stable v3.x.x
 
       - name: Login to GitHub Container Registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+        uses: docker/login-action@v2 # Consider using latest stable v3.x.x
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and Push Multi-Architecture Docker Image
-        run: |
-          docker buildx build \
-            --platform=linux/amd64,linux/arm64 \
-            --tag ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
-            --tag ${{ env.IMAGE_NAME }}:latest \
-            --push .
+        uses: docker/build-push-action@v4 # Consider using latest stable v5.x.x
+        with:
+          context: . # Build context is the current directory
+          # file: ./Dockerfile # Explicitly specify Dockerfile if not in root
+          platforms: linux/amd64,linux/arm64 # Specify target platforms
+          push: true # Push the image to the registry
+          tags: | # Define image tags
+            ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            ${{ env.IMAGE_NAME }}:latest
+          cache-from: type=gha # Enable GitHub Actions cache for Docker layer caching
+          cache-to: type=gha,mode=max
