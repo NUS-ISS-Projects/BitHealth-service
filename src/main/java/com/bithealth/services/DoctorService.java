@@ -10,11 +10,14 @@ import com.bithealth.dto.DoctorUpdateRequestDTO;
 import com.bithealth.entities.Doctor;
 import com.bithealth.entities.User;
 import com.bithealth.repositories.DoctorRepository;
+import com.bithealth.repositories.UserRepository;
 
 @Service
 public class DoctorService {
     @Autowired
     private DoctorRepository doctorRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     public List<Doctor> getAllDoctors() {
         return doctorRepository.findAllWithUsers();
@@ -22,6 +25,11 @@ public class DoctorService {
 
     public Optional<Doctor> getDoctorProfile(Long doctorId) {
         return doctorRepository.findById(doctorId);
+    }
+
+    public Optional<Doctor> getUserDoctorProfile(Long userId) {
+        Optional<User> user = userRepository.findById(userId);
+        return doctorRepository.findByUser(user);
     }
 
     // Update a doctor's profile

@@ -10,7 +10,7 @@ import com.bithealth.entities.Doctor;
 import com.bithealth.entities.User;
 
 public interface DoctorRepository extends JpaRepository<Doctor, Long> {
-    Optional<Doctor> findByUser(User user);
+    Optional<Doctor> findByUser(Optional<User> user);
 
     Optional<Doctor> findById(Long doctorId);
 
