@@ -29,7 +29,7 @@ jobs:
           cache: maven
 
       - name: Build with Maven and Run Tests
-        run: mvn -B package --file pom.xml
+        run: mvn -B verify --file pom.xml # CHANGED package to verify
 
       - name: Upload JaCoCo Report
         uses: actions/upload-artifact@v4.6.1
@@ -50,7 +50,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '17'
-          distribution: 'temurin' # Switched back to temurin for consistency
+          distribution: 'temurin'
 
       - name: Cache SonarCloud Packages
         uses: actions/cache@v3
@@ -157,7 +157,7 @@ jobs:
           cmd_options: '-j'
 
       - name: Upload DAST HTML Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4 
         if: always() # Ensures this runs even if the previous step is marked as failed
         with:
           name: zap-baseline-report-html
@@ -181,7 +181,7 @@ jobs:
         run: mvn clean install --batch-mode --errors --fail-at-end
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v4.6.1
+        uses: actions/upload-artifact@v4.6.1 
         with:
           name: bithealth-app.jar
           path: target/*.jar
@@ -201,7 +201,7 @@ jobs:
         run: echo "IMAGE_TAG=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
 
       - name: Retrieve Saved Artifact
-        uses: actions/download-artifact@v4.1.9
+        uses: actions/download-artifact@v4.1.9 
         with:
           name: bithealth-app.jar
           path: target/
