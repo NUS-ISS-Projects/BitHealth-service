@@ -1,12 +1,13 @@
 package com.bithealth.services;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.bithealth.dto.DiagnosisUpdateDTO;
 import com.bithealth.entities.Appointment;
 import com.bithealth.entities.Diagnosis;
 import com.bithealth.repositories.AppointmentRepository;
 import com.bithealth.repositories.DiagnosisRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 @Service
 public class DiagnosisService {
@@ -26,7 +27,7 @@ public class DiagnosisService {
 
         diagnosis.setAppointment(appointment);
         diagnosis.setDiagnosis(dto.getDiagnosis());
-        diagnosis.setDiagnosisAction(dto.getDiagnosisAction());
+
 
         return diagnosisRepository.save(diagnosis);
     }

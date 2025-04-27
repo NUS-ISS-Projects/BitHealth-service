@@ -14,11 +14,15 @@ import com.bithealth.repositories.UserRepository;
 
 @Service
 public class DoctorService {
-    @Autowired
-    private DoctorRepository doctorRepository;
-    @Autowired
-    private UserRepository userRepository;
+ 
+    private final DoctorRepository doctorRepository;
+    private final UserRepository userRepository;
 
+    @Autowired
+    public DoctorService(UserRepository userRepository,DoctorRepository doctorRepository) {
+        this.userRepository = userRepository;
+        this.doctorRepository = doctorRepository;
+    }
     public List<Doctor> getAllDoctors() {
         return doctorRepository.findAllWithUsers();
     }

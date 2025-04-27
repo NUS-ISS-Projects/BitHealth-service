@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class DiagnosisUpdateDTO {
     private String diagnosis;
-    private String diagnosisAction;
+    private String prescription; // Updated field name to match JSON payload
 }

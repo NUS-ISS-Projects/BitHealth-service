@@ -3,6 +3,7 @@ package com.bithealth.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -39,10 +40,11 @@ public class AppointmentController {
     // Create an Appointment
     @PostMapping
     @PreAuthorize("hasRole('PATIENT')")
-    public ResponseEntity<Appointment> createAppointment( @RequestHeader("Authorization") String authorizationHeader,
-                                                          @RequestBody AppointmentCreateRequestDTO request) {
+    public ResponseEntity<Appointment> createAppointment(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestBody AppointmentCreateRequestDTO request) {
         Appointment appointment = appointmentService.createAppointment(request);
-        return ResponseEntity.status(201).body(appointment);
+        return ResponseEntity.status(HttpStatus.CREATED).body(appointment);
     }
 
     // Get Available Appointments for a Doctor
@@ -51,7 +53,8 @@ public class AppointmentController {
     public ResponseEntity<List<Appointment>> getAvailableAppointmentsForDoctor() {
         User authUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long doctorId = authUser.getDoctor().getDoctorId();
-        return ResponseEntity.ok(appointmentService.getAvailableAppointmentsForDoctor(doctorId));
+        List<Appointment> appointments = appointmentService.getAvailableAppointmentsForDoctor(doctorId);
+        return ResponseEntity.ok(appointments);
     }
 
     // Get Appointments for a Patient
@@ -60,7 +63,8 @@ public class AppointmentController {
     public ResponseEntity<List<Appointment>> getAppointmentsForPatient() {
         User authUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long patientId = authUser.getPatient().getPatientId();
-        return ResponseEntity.ok(appointmentService.getAppointmentsForPatient(patientId));
+        List<Appointment> appointments = appointmentService.getAppointmentsForPatient(patientId);
+        return ResponseEntity.ok(appointments);
     }
 
     // Get Appointment by ID
@@ -105,9 +109,16 @@ public class AppointmentController {
         Diagnosis diagnosis = diagnosisService.addOrUpdateDiagnosis(appointmentId, dto);
         return ResponseEntity.ok(diagnosis);
     }
+
     @GetMapping("/diagnosis/{appointmentId}")
     public ResponseEntity<Diagnosis> getDiagnosisByAppointment(@PathVariable Long appointmentId) {
         Diagnosis diagnosis = diagnosisService.getDiagnosisByAppointment(appointmentId);
         return ResponseEntity.ok(diagnosis);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Appointment>> getAllAppointments() {
+        List<Appointment> appointments = appointmentService.getAllAppointments();
+        return ResponseEntity.ok(appointments);
     }
 }

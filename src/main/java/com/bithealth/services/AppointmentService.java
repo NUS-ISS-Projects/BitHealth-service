@@ -1,5 +1,12 @@
 package com.bithealth.services;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.bithealth.dto.AppointmentCreateRequestDTO;
 import com.bithealth.entities.Appointment;
 import com.bithealth.entities.Doctor;
@@ -7,12 +14,6 @@ import com.bithealth.entities.Patient;
 import com.bithealth.repositories.AppointmentRepository;
 import com.bithealth.repositories.DoctorRepository;
 import com.bithealth.repositories.PatientRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.List;
 
 @Service
 public class AppointmentService {
@@ -83,4 +84,8 @@ public class AppointmentService {
         appointment.setStatus(Appointment.Status.PENDING);
         return appointmentRepository.save(appointment);
     }
+
+    public List<Appointment> getAllAppointments() {
+        return appointmentRepository.findAll();
+        }
 }

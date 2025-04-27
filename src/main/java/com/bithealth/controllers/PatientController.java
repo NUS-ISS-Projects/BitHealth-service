@@ -28,6 +28,7 @@ public class PatientController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+
     // Update Patient Profile
     @PutMapping("/{patientId}")
     public ResponseEntity<Patient> updatePatientProfile(
@@ -35,6 +36,7 @@ public class PatientController {
             @RequestBody PatientUpdateRequestDTO request) {
         return ResponseEntity.ok(patientService.updatePatientProfile(patientId, request));
     }
+
 
     // Get profile using JWT token 
     // Get Patient Profile
