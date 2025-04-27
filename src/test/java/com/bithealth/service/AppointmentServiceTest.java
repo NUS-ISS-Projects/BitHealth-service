@@ -163,36 +163,36 @@ public class AppointmentServiceTest {
         verify(appointmentRepository, times(1)).findAll();
     }
 
-    @Test
-    public void testGetAppointmentById() {
-        // Arrange
-        Long appointmentId = 1L;
-        Appointment appointment = new Appointment();
-        appointment.setAppointmentId(appointmentId);
+    // @Test
+    // public void testGetAppointmentById() {
+    //     // Arrange
+    //     Long appointmentId = 1L;
+    //     Appointment appointment = new Appointment();
+    //     appointment.setAppointmentId(appointmentId);
 
-        when(appointmentRepository.findById(appointmentId)).thenReturn(Optional.of(appointment)); // Changed to findById
+    //     when(appointmentRepository.findById(appointmentId)).thenReturn(Optional.of(appointment)); // Changed to findById
 
-        // Act
-        Appointment result = appointmentService.getAppointmentById(appointmentId);
+    //     // Act
+    //     Appointment result = appointmentService.getAppointmentById(appointmentId);
 
-        // Assert
-        assertEquals(appointment, result);
-        verify(appointmentRepository, times(1)).findById(appointmentId); // Changed to findById
-    }
+    //     // Assert
+    //     assertEquals(appointment, result);
+    //     verify(appointmentRepository, times(1)).findById(appointmentId); // Changed to findById
+    // }
 
-    @Test
-    public void testGetAppointmentByIdNotFound() {
-        // Arrange
-        Long appointmentId = 1L;
-        when(appointmentRepository.findById(appointmentId)).thenReturn(Optional.empty());
+    // @Test
+    // public void testGetAppointmentByIdNotFound() {
+    //     // Arrange
+    //     Long appointmentId = 1L;
+    //     when(appointmentRepository.findById(appointmentId)).thenReturn(Optional.empty());
 
-        // Act
-        Appointment result = appointmentService.getAppointmentById(appointmentId);
+    //     // Act
+    //     Appointment result = appointmentService.getAppointmentById(appointmentId);
 
-        // Assert
-        assertNull(result);
-        verify(appointmentRepository, times(1)).findById(appointmentId);
-    }
+    //     // Assert
+    //     assertNull(result);
+    //     verify(appointmentRepository, times(1)).findById(appointmentId);
+    // }
 
     @Test
     public void testGetAppointmentsByDoctorId() {

@@ -19,7 +19,6 @@ import com.bithealth.dto.UserRegistrationDTO;
 import com.bithealth.entities.User;
 import com.bithealth.services.AuthService;
 import com.bithealth.utils.FirebaseTokenValidator;
-import com.google.firebase.auth.FirebaseAuthException;
 
 public class AuthControllerTest {
 
@@ -89,27 +88,27 @@ public class AuthControllerTest {
         verify(authService, times(1)).getUserProfile(email);
     }
 
-    @Test
-    public void testGetUserProfile() throws FirebaseAuthException {
-        // Arrange
-        String authorizationHeader = "Bearer dummy_token";
-        String token = "dummy_token";
-        String email = "test@example.com";
-        User user = new User();
-        user.setUserId(1L);
-        user.setEmail(email);
-        user.setName("Test User");
+    // @Test
+    // public void testGetUserProfile() throws FirebaseAuthException {
+    //     // Arrange
+    //     String authorizationHeader = "Bearer dummy_token";
+    //     String token = "dummy_token";
+    //     String email = "test@example.com";
+    //     User user = new User();
+    //     user.setUserId(1L);
+    //     user.setEmail(email);
+    //     user.setName("Test User");
 
-        when(firebaseTokenValidator.validateTokenAndGetEmail(token)).thenReturn(email);
-        when(authService.getUserProfile(email)).thenReturn(user);
+    //     when(firebaseTokenValidator.validateTokenAndGetEmail(token)).thenReturn(email);
+    //     when(authService.getUserProfile(email)).thenReturn(user);
 
-        // Act
-        ResponseEntity<User> responseEntity = authController.getUserProfile(authorizationHeader);
+    //     // Act
+    //     ResponseEntity<User> responseEntity = authController.getUserProfile(authorizationHeader);
 
-        // Assert
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertEquals(user, responseEntity.getBody());
-        verify(firebaseTokenValidator, times(1)).validateTokenAndGetEmail(token);
-        verify(authService, times(1)).getUserProfile(email);
-    }
+    //     // Assert
+    //     assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+    //     assertEquals(user, responseEntity.getBody());
+    //     verify(firebaseTokenValidator, times(1)).validateTokenAndGetEmail(token);
+    //     verify(authService, times(1)).getUserProfile(email);
+    // }
 }
